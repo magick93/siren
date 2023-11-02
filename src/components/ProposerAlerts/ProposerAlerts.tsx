@@ -1,22 +1,21 @@
 import { FC } from 'react'
-import { useSetRecoilState } from 'recoil'
-import getSlotTimeData from '../../../utilities/getSlotTimeData'
-import groupArray from '../../../utilities/groupArray'
-import { proposerDuties } from '../../recoil/atoms'
 import { ProposerDuty } from '../../types'
-import { BeaconNodeSpecResults, SyncData } from '../../types/beacon';
+import groupArray from '../../utilities/groupArray'
 import AlertGroup from './AlertGroup'
 import ProposalAlert from './ProposalAlert'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { selectGenesisBlock } from '../../recoil/selectors/selectGenesisBlock'
+import { selectBnSpec } from '../../recoil/selectors/selectBnSpec'
+import { proposerDuties } from '../../recoil/atoms'
+import getSlotTimeData from '../../utilities/getSlotTimeData'
 
 export interface ProposerAlertsProps {
   duties: ProposerDuty[]
-  syncData: SyncData
-  bnSpec: BeaconNodeSpecResults
 }
 
-const ProposerAlerts: FC<ProposerAlertsProps> = ({ duties, bnSpec, syncData }) => {
-  const { SECONDS_PER_SLOT } = bnSpec
-  const { beaconSync: {headSlot} } = syncData
+const ProposerAlerts: FC<ProposerAlertsProps> = ({ duties }) => {
+  const { SECONDS_PER_SLOT } = useRecoilValue(selectBnSpec)
+  const genesis = useRecoilValue(selectGenesisBlock) as number
   const setProposers = useSetRecoilState(proposerDuties)
   const groups = groupArray(duties, 10)
 
@@ -29,8 +28,8 @@ const ProposerAlerts: FC<ProposerAlertsProps> = ({ duties, bnSpec, syncData }) =
       {duties.length >= 10
         ? groups.map((group, index) => (
             <AlertGroup
-              headSlot={headSlot}
               onClick={removeAlert}
+              genesis={genesis}
               secondsPerSlot={SECONDS_PER_SLOT}
               duties={group}
               key={index}
@@ -38,11 +37,10 @@ const ProposerAlerts: FC<ProposerAlertsProps> = ({ duties, bnSpec, syncData }) =
           ))
         : duties.map((duty, index) => {
             const { isFuture, shortHand } = getSlotTimeData(
-              headSlot,
               Number(duty.slot),
+              genesis,
               SECONDS_PER_SLOT,
             )
-
             return (
               <ProposalAlert
                 onDelete={removeAlert}

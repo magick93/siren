@@ -1,59 +1,76 @@
-import { useEffect, useMemo, useState } from 'react'
 import { useRecoilValue } from 'recoil'
-import calculateAprPercentage from '../../utilities/calculateAprPercentage'
-import calculateEpochEstimate from '../../utilities/calculateEpochEstimate'
+import { useEffect, useMemo, useState } from 'react'
+import { FormattedValidatorCache } from '../types/validator'
 import {
   initialEthDeposit,
   secondsInDay,
   secondsInHour,
   secondsInWeek,
 } from '../constants/constants'
-import { beaconNodeSpec } from '../recoil/atoms'
-import { FormattedValidatorCache, ValidatorBalanceInfo } from '../types/validator'
+import calculateEpochEstimate from '../utilities/calculateEpochEstimate'
+import { selectValidatorInfos } from '../recoil/selectors/selectValidatorInfos'
+import calculateAprPercentage from '../utilities/calculateAprPercentage'
+import useFilteredValidatorCacheData from './useFilteredValidatorCacheData'
+import { selectBnSpec } from '../recoil/selectors/selectBnSpec'
 
-const useValidatorEarnings = (validatorData: ValidatorBalanceInfo) => {
-  const spec = useRecoilValue(beaconNodeSpec)
-  const interval = spec?.SECONDS_PER_SLOT || 12
-  const { validators, balances } = validatorData || {}
+const useValidatorEarnings = (indices?: string[]) => {
+  const { SECONDS_PER_SLOT } = useRecoilValue(selectBnSpec)
+  const validators = useRecoilValue(selectValidatorInfos)
 
-  const epochKeys = balances ? Object.keys(balances) : undefined
+  const filteredCacheData = useFilteredValidatorCacheData(indices)
+  const filteredValidators = useMemo(() => {
+    return indices ? validators.filter(({ index }) => indices.includes(String(index))) : validators
+  }, [validators, indices])
+
+  const formattedEpochs = useMemo(() => {
+    if (!filteredCacheData) return undefined
+
+    return Object.values(filteredCacheData)
+      .flat()
+      .reduce(function (r, a) {
+        r[a.epoch] = r[a.epoch] || []
+        r[a.epoch].push(a.total_balance)
+        return r
+      }, Object.create(null))
+  }, [filteredCacheData])
+  const epochKeys = formattedEpochs ? Object.keys(formattedEpochs) : undefined
   const lastEpoch = epochKeys ? epochKeys[epochKeys.length - 1] : undefined
 
   const [epochCaches, setCaches] = useState<FormattedValidatorCache | undefined>()
 
   useEffect(() => {
-    setCaches((prev) => Object.assign({} as FormattedValidatorCache, prev, balances))
-  }, [lastEpoch, balances])
+    setCaches((prev) => Object.assign({}, prev, formattedEpochs))
+  }, [lastEpoch])
 
   const total = useMemo(() => {
-    return validators?.map((validator) => validator.balance).reduce((a, b) => a + b, 0)
-  }, [validators])
+    return filteredValidators.map((validator) => validator.balance).reduce((a, b) => a + b, 0)
+  }, [filteredValidators])
 
   const totalEarnings = useMemo(() => {
-    return validators?.map((validator) => validator.rewards).reduce((a, b) => a + b, 0)
-  }, [validators])
+    return filteredValidators.map((validator) => validator.rewards).reduce((a, b) => a + b, 0)
+  }, [filteredValidators])
 
   const hourlyEstimate = useMemo(
-    () => calculateEpochEstimate(secondsInHour, interval, epochCaches),
-    [epochCaches, interval],
+    () => calculateEpochEstimate(secondsInHour, SECONDS_PER_SLOT, epochCaches),
+    [epochCaches, SECONDS_PER_SLOT],
   )
 
   const dailyEstimate = useMemo(
-    () => calculateEpochEstimate(secondsInDay, interval, epochCaches),
-    [epochCaches, interval],
+    () => calculateEpochEstimate(secondsInDay, SECONDS_PER_SLOT, epochCaches),
+    [epochCaches, SECONDS_PER_SLOT],
   )
 
   const weeklyEstimate = useMemo(
-    () => calculateEpochEstimate(secondsInWeek, interval, epochCaches),
-    [epochCaches, interval],
+    () => calculateEpochEstimate(secondsInWeek, SECONDS_PER_SLOT, epochCaches),
+    [epochCaches, SECONDS_PER_SLOT],
   )
 
   const monthlyEstimate = useMemo(
-    () => calculateEpochEstimate(secondsInWeek * 4, interval, epochCaches),
-    [epochCaches, interval],
+    () => calculateEpochEstimate(secondsInWeek * 4, SECONDS_PER_SLOT, epochCaches),
+    [epochCaches, SECONDS_PER_SLOT],
   )
 
-  const initialEth = (validators?.length || 0) * initialEthDeposit
+  const initialEth = filteredValidators.length * initialEthDeposit
   const annualizedEarningsPercent = calculateAprPercentage(total, initialEth)
 
   return {

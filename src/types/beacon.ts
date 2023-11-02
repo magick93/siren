@@ -1,8 +1,9 @@
-import { BeaconSyncInfo, ValidatorSyncInfo } from './diagnostic'
-
-export type SyncData = {
-  beaconSync: BeaconSyncInfo
-  executionSync: ValidatorSyncInfo
+export type BeaconValidatorInclusionResults = {
+  current_epoch_active_gwei: number
+  current_epoch_target_attesting_gwei: number
+  previous_epoch_active_gwei: number
+  previous_epoch_head_attesting_gwei: number
+  previous_epoch_target_attesting_gwei: number
 }
 
 export type BeaconNodeSpecResults = {
@@ -11,7 +12,6 @@ export type BeaconNodeSpecResults = {
   DEPOSIT_CONTRACT_ADDRESS: string
   DEPOSIT_NETWORK_ID: string
   SECONDS_PER_SLOT: number
-  SLOTS_PER_EPOCH: number
 }
 
 export type BeaconValidatorMetric = {
@@ -26,12 +26,10 @@ export type BeaconValidatorMetric = {
   attestation_target_hit_percentage: number
 }
 
-export type BeaconValidatorMetricResults = {
-  [key: string]: BeaconValidatorMetric
+export type ValidatorMetricEpoch = {
+  [key: string]: BeaconValidatorMetricResults
 }
 
-export type ValidatorMetricResult = {
-  targetEffectiveness: number,
-  hitEffectiveness: number,
-  totalEffectiveness: number
+export type BeaconValidatorMetricResults = {
+  [key: string]: BeaconValidatorMetric
 }

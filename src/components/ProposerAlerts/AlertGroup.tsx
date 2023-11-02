@@ -1,19 +1,19 @@
-import { FC, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import getSlotTimeData from '../../../utilities/getSlotTimeData'
 import { ProposerDuty, StatusColor } from '../../types'
+import { FC, useState } from 'react'
 import StatusBar from '../StatusBar/StatusBar'
 import Typography from '../Typography/Typography'
 import ProposalAlert from './ProposalAlert'
+import getSlotTimeData from '../../utilities/getSlotTimeData'
+import { useTranslation } from 'react-i18next'
 
 export interface AlertGroupProps {
   duties: ProposerDuty[]
   onClick: (ids: string[]) => void
+  genesis: number
   secondsPerSlot: number
-  headSlot: number
 }
 
-const AlertGroup: FC<AlertGroupProps> = ({ duties, secondsPerSlot, onClick, headSlot }) => {
+const AlertGroup: FC<AlertGroupProps> = ({ duties, genesis, secondsPerSlot, onClick }) => {
   const { t } = useTranslation()
   const indices = duties.map(({ validator_index }) => validator_index)
   const uuids = duties.map(({ uuid }) => uuid)
@@ -22,14 +22,14 @@ const AlertGroup: FC<AlertGroupProps> = ({ duties, secondsPerSlot, onClick, head
 
   const sortedDutiesBySlot = [...duties].sort((a, b) => Number(b.slot) - Number(a.slot))
   const latestDuty = sortedDutiesBySlot[0]
-  const latestDutyTime = getSlotTimeData(headSlot, Number(latestDuty.slot), secondsPerSlot)
+  const latestDutyTime = getSlotTimeData(Number(latestDuty.slot), genesis, secondsPerSlot)
 
   const toggle = () => toggleGroup(!isExpand)
   const removeGroup = () => onClick(uuids)
 
   const renderMappedDuties = () =>
     duties?.map((duty, index) => {
-      const { isFuture, shortHand } = getSlotTimeData(headSlot, Number(duty.slot), secondsPerSlot)
+      const { isFuture, shortHand } = getSlotTimeData(Number(duty.slot), genesis, secondsPerSlot)
 
       return (
         <ProposalAlert

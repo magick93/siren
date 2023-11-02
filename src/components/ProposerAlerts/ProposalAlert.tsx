@@ -1,14 +1,14 @@
-import { FC } from 'react'
-import { Trans } from 'react-i18next'
 import { ProposerDuty, StatusColor } from '../../types'
+import { FC } from 'react'
 import StatusBar from '../StatusBar/StatusBar'
 import Typography from '../Typography/Typography'
+import { Trans } from 'react-i18next'
 
 export interface ProposalAlertProps {
   duty: ProposerDuty
   time: string
   isFuture?: boolean
-  onDelete?: ((uuid: string[]) => void) | undefined
+  onDelete?: (uuid: string[]) => void
 }
 
 const ProposalAlert: FC<ProposalAlertProps> = ({ duty, time, isFuture, onDelete }) => {
