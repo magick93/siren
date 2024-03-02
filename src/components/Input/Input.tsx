@@ -8,13 +8,13 @@ import {
   useRef,
   useEffect,
 } from 'react'
-import { Message } from 'react-hook-form/dist/types/errors'
+import Typography from '../Typography/Typography'
 import { UiMode } from '../../constants/enums'
 import Tooltip from '../ToolTip/Tooltip'
-import Typography from '../Typography/Typography'
+import { Message } from 'react-hook-form/dist/types/errors'
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string | undefined
+  label?: string
   extraLabel?: string
   tooltip?: string
   error?: Message | undefined

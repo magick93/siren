@@ -1,15 +1,15 @@
-import { FC, useEffect, useState } from 'react'
-import { PlacesType } from 'react-tooltip'
-import addClassString from '../../../utilities/addClassString'
-import generateId from '../../../utilities/generateId'
-import DarkNetwork from '../../assets/images/darkNetwork.svg'
-import Network from '../../assets/images/network.svg'
-import NotAvailable from '../../assets/images/notAvalilable.svg'
-import { OptionalString, StatusColor } from '../../types'
-import ProgressCircle from '../ProgressCircle/ProgressCircle'
-import Status from '../Status/Status'
-import Tooltip from '../ToolTip/Tooltip'
+import { FC } from 'react'
 import Typography, { TypographyType } from '../Typography/Typography'
+import network from '../../assets/images/network.svg'
+import { ReactComponent as NotAvailable } from '../../assets/images/notAvalilable.svg'
+import darkNetwork from '../../assets/images/darkNetwork.svg'
+import Status from '../Status/Status'
+import ProgressCircle from '../ProgressCircle/ProgressCircle'
+import generateId from '../../utilities/generateId'
+import Tooltip from '../ToolTip/Tooltip'
+import { PlacesType } from 'react-tooltip'
+import addClassString from '../../utilities/addClassString'
+import { OptionalString, StatusColor } from '../../types'
 
 export type CardSize = 'lg' | 'md' | 'sm' | 'health'
 
@@ -48,7 +48,6 @@ const DiagnosticCard: FC<DiagnosticCardProps> = ({
   toolTipPosition,
   isDisabled,
 }) => {
-  const [isReady, setReady] = useState(false)
   const toolTipId = Math.random().toString()
   const isSmall = size === 'sm'
   const getContainerSize = () => {
@@ -67,11 +66,6 @@ const DiagnosticCard: FC<DiagnosticCardProps> = ({
         } py-2 px-3 xl:py-3 xl:px-4 dark:border-dark500`
     }
   }
-
-  useEffect(() => {
-    setReady(true)
-  }, [])
-
   const contentClass = addClassString('flex flex-col justify-between h-full', [
     isDisabled && 'opacity-20',
   ])
@@ -83,8 +77,8 @@ const DiagnosticCard: FC<DiagnosticCardProps> = ({
         size !== 'sm' &&
         isBackground && (
           <div className='w-full max-h-full absolute left-0 top-1/2 transform -translate-y-1/2 overflow-hidden'>
-            <Network className='w-full dark:hidden' />
-            <DarkNetwork className='w-full hidden dark:block' />
+            <img className='w-full dark:hidden' src={network} alt='network' />
+            <img className='w-full hidden dark:block' src={darkNetwork} alt='network' />
           </div>
         )
       )}
@@ -124,7 +118,7 @@ const DiagnosticCard: FC<DiagnosticCardProps> = ({
 
   return (
     <div className={`w-full h-full ${getContainerSize()} ${border} relative`}>
-      {toolTipText && isReady ? (
+      {toolTipText ? (
         <Tooltip
           className='h-full'
           maxWidth={250}

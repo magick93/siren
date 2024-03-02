@@ -1,21 +1,42 @@
-import { FC } from 'react'
 import ReactSpeedometer, { CustomSegmentLabelPosition } from 'react-d3-speedometer'
-import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
 import { UiMode } from '../../constants/enums'
-import { uiMode } from '../../recoil/atoms'
-import { PeerDataResults } from '../../types/diagnostic'
-import Tooltip from '../ToolTip/Tooltip'
+import { useRecoilValue } from 'recoil'
+import { uiMode, validatorPeerCount } from '../../recoil/atoms'
 import Typography from '../Typography/Typography'
+import { useTranslation } from 'react-i18next'
+import Tooltip from '../ToolTip/Tooltip'
+import { StatusColor } from '../../types'
+import useDiagnosticAlerts from '../../hooks/useDiagnosticAlerts'
+import { useEffect } from 'react'
+import { ALERT_ID } from '../../constants/constants'
 
-export interface NetworkPeerSpeedometerProps {
-  peerData: PeerDataResults
-}
-
-const NetworkPeerSpeedometer: FC<NetworkPeerSpeedometerProps> = ({ peerData }) => {
+const NetworkPeerSpeedometer = () => {
   const { t } = useTranslation()
   const mode = useRecoilValue(uiMode)
-  const { connected } = peerData
+  const peers = useRecoilValue(validatorPeerCount)
+  const { updateAlert } = useDiagnosticAlerts()
+
+  useEffect(() => {
+    if (!peers) return
+
+    if (peers <= 50) {
+      if (peers <= 20) {
+        updateAlert({
+          message: t('alert.peerCountLow', { type: t('alert.type.nodeValidator') }),
+          subText: t('poor'),
+          severity: StatusColor.ERROR,
+          id: ALERT_ID.PEER_COUNT,
+        })
+        return
+      }
+      updateAlert({
+        message: t('alert.peerCountMedium', { type: t('alert.type.nodeValidator') }),
+        subText: t('fair'),
+        severity: StatusColor.WARNING,
+        id: ALERT_ID.PEER_COUNT,
+      })
+    }
+  }, [peers])
 
   return (
     <Tooltip
@@ -40,7 +61,7 @@ const NetworkPeerSpeedometer: FC<NetworkPeerSpeedometerProps> = ({ peerData }) =
             darkMode='dark:text-white'
             type='text-caption2'
           >
-            {connected}
+            {peers}
           </Typography>
           <ReactSpeedometer
             width={90}
@@ -63,7 +84,7 @@ const NetworkPeerSpeedometer: FC<NetworkPeerSpeedometerProps> = ({ peerData }) =
             labelFontSize='6px'
             valueTextFontSize='9px'
             segmentColors={['tomato', 'gold', 'limegreen']}
-            value={connected}
+            value={peers || 0}
             maxValue={100}
             textColor={'transparent'}
           />

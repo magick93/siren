@@ -1,8 +1,8 @@
 import React, { FC } from 'react'
 import { Tooltip as TooltipComponent, PlacesType } from 'react-tooltip'
-import addClassString from '../../../utilities/addClassString'
-import { UiMode } from '../../constants/enums'
 import useUiMode from '../../hooks/useUiMode'
+import { UiMode } from '../../constants/enums'
+import addClassString from '../../utilities/addClassString'
 import { OptionalString } from '../../types'
 
 export interface TooltipProps {
