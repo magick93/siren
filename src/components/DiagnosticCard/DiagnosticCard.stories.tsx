@@ -1,8 +1,8 @@
-import DiagnosticCard, { DiagnosticCardProps } from './DiagnosticCard'
 import { Story } from '@storybook/react'
 import { StatusColor } from '../../types'
+import DiagnosticCard, { DiagnosticCardProps } from './DiagnosticCard'
 
-export default {
+const DiagnosticStory = {
   title: 'Diagnostic Card',
   component: DiagnosticCard,
 }
@@ -38,3 +38,5 @@ SmallCard.args = {
   subTitle: 'Good, Nodes Syncing..',
   size: 'sm',
 }
+
+export default DiagnosticStory

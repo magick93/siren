@@ -1,26 +1,31 @@
-import Typography from '../Typography/Typography'
-import useDeviceDiagnostics from '../../hooks/useDeviceDiagnostics'
+import { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import useMediaQuery from '../../hooks/useMediaQuery'
-import { useRecoilValue } from 'recoil'
-import { selectBeaconSyncInfo } from '../../recoil/selectors/selectBeaconSyncInfo'
-import { selectValidatorSyncInfo } from '../../recoil/selectors/selectValidatorSyncInfo'
-import secondsToShortHand from '../../utilities/secondsToShortHand'
-import { useState } from 'react'
+import addSuffixString from '../../../utilities/addSuffixString'
+import secondsToShortHand from '../../../utilities/secondsToShortHand'
 import { DiagnosticType } from '../../constants/enums'
-import DiagnosticCard from '../DiagnosticCard/DiagnosticCard'
-import addSuffixString from '../../utilities/addSuffixString'
+import useMediaQuery from '../../hooks/useMediaQuery'
 import { StatusColor } from '../../types'
+import { SyncData } from '../../types/beacon'
+import { Diagnostics } from '../../types/diagnostic'
+import DiagnosticCard from '../DiagnosticCard/DiagnosticCard'
+import Typography from '../Typography/Typography'
 
-const HardwareInfo = () => {
+export interface HardwareInfoProps {
+  syncData: SyncData
+  beanHealth: Diagnostics
+}
+
+const HardwareInfo: FC<HardwareInfoProps> = ({ syncData, beanHealth }) => {
   const { t } = useTranslation()
-  const [view, setView] = useState<DiagnosticType>(DiagnosticType.DEVICE)
-  const { beaconPercentage, beaconSyncTime } = useRecoilValue(selectBeaconSyncInfo)
-  const { isReady, syncPercentage } = useRecoilValue(selectValidatorSyncInfo)
   const {
+    beaconSync: { beaconSyncTime, beaconPercentage, isSyncing },
+    executionSync: { syncPercentage, isReady },
+  } = syncData
+  const [view, setView] = useState<DiagnosticType>(DiagnosticType.DEVICE)
+  const {
+    diskStatus,
     totalDiskSpace,
     diskUtilization,
-    diskStatus,
     totalMemory,
     memoryUtilization,
     ramStatus,
@@ -29,8 +34,10 @@ const HardwareInfo = () => {
     frequency,
     networkName,
     natOpen,
-  } = useDeviceDiagnostics()
-  const remainingBeaconTime = secondsToShortHand(beaconSyncTime || 0)
+  } = beanHealth
+
+  const diskData = isSyncing ? diskStatus.syncing : diskStatus.synced
+  const remainingBeaconTime = secondsToShortHand(Number(beaconSyncTime) || 0)
 
   const isMobile = useMediaQuery('(max-width: 425px)')
 
@@ -56,7 +63,7 @@ const HardwareInfo = () => {
               border='border-t-0 border-style500'
               metric={addSuffixString(Math.round(totalDiskSpace), 'GB')}
               subTitle={t('utilization', { percent: diskUtilization })}
-              status={diskStatus}
+              status={diskData}
             />
             <DiagnosticCard
               title={t('cpu')}
@@ -109,11 +116,11 @@ const HardwareInfo = () => {
               size={size}
               maxHeight='flex-1'
               title='Beacon Node'
-              metric={beaconSyncTime === 0 ? ' ' : remainingBeaconTime}
-              percent={beaconPercentage}
+              metric={Number(beaconSyncTime) === 0 ? ' ' : remainingBeaconTime}
+              percent={Number(beaconPercentage)}
               isBackground={false}
               subTitle={t('connectedStatus', {
-                status: beaconPercentage < 100 ? t('outOfSync') : t('inSync'),
+                status: Number(beaconPercentage) < 100 ? t('outOfSync') : t('inSync'),
               })}
             />
           </>

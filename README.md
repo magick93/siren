@@ -7,7 +7,7 @@ and Validator Client.
 
 [Chat Badge]: https://img.shields.io/badge/chat-discord-%237289da
 [Chat Link]: https://discord.gg/jpqcHXPRVJ
-[Book Status]:https://img.shields.io/badge/user--docs-unstable-informational
+[Book Status]: https://img.shields.io/badge/user--docs-unstable-informational
 [Book Link]: https://lighthouse-book.sigmaprime.io/lighthouse-ui.html
 [stable]: https://github.com/sigp/siren/tree/stable
 [unstable]: https://github.com/sigp/siren/tree/unstable
@@ -21,7 +21,7 @@ developers. Specifically the [Lighthouse UI](https://lighthouse-book.sigmaprime.
 
 ### Requirements
 
-Building from source requires `Node v18` and `yarn`. 
+Building from source requires `Node v18` and `yarn`.
 
 ### Building From Source
 
@@ -56,32 +56,38 @@ $ yarn dev
 #### Docker (Recommended)
 
 Docker is the recommended way to run a webserver that hosts Siren and can be
-connected to via a web browser. We recommend this method as it established a
-production-grade web-server to host the application.
+connected to via a web browser.
 
 `docker` is required to be installed with the service running.
 
-The docker image can be built and run via the Makefile by running:
+Recommended config for using the docker image (assuming the BN/VC API's are exposed on your localhost):
+
 ```
-$ make docker
+PORT=3000
+BACKEND_URL=http://127.0.0.1:3001
+VALIDATOR_URL=http://host.docker.internal:5062
+BEACON_URL=http://host.docker.internal:5052
+SSL_ENABLED=true
 ```
 
-Alternatively, to run with Docker, the image needs to be built. From the repository directory
-run:
+The docker image can be built and run with the following commands:
 ```
-$ docker build -t siren .
+$ docker build -f Dockerfile -t siren .
 ```
 
 Then to run the image:
-```
-$ docker run --rm -ti --name siren -p 80:80 siren
-```
 
-This will open port 80 and allow your browser to connect. You can choose
-another local port by modifying the command. For example `-p 8000:80` will open
-port 8000.
+```
+$ docker run --rm -ti --name siren -p 3443:443 -v $PWD/.env:/app/.env:ro siren
+```
+Linux users may want to add this flag: 
+`--add-host=host.docker.internal:host-gateway`
 
-To view Siren, simply go to `http://localhost` in your web browser.
+This will open port 3443 and allow your browser to connect. 
+
+To start Siren, visit `https://localhost:3443` in your web browser. (ignore the certificate warning). 
+
+Advanced users can mount their own certificate with `-v $PWD/certs:/certs` (the config expects 3 files: `/certs/cert.pem` `/certs/key.pem` `/certs/key.pass`)
 
 # Running a Local Testnet
 
@@ -104,6 +110,7 @@ $ make install-lcli
 note: you need a version of lcli that includes [these](https://github.com/sigp/lighthouse/pull/3807) changes
 
 `ganache` is also required to be installed. This can be installed via `npm` or via the OS. If using `npm` it can be installed as:
+
 ```
 $ npm install ganache --global
 ```
@@ -111,6 +118,7 @@ $ npm install ganache --global
 ## Starting the Testnet
 
 To start a local testnet, move into the `local-testnet` directory. Then run:
+
 ```bash
 ./start_local_testnet.sh genesis.json
 ```

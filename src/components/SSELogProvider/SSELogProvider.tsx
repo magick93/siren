@@ -1,7 +1,7 @@
+import React, { FC, ReactElement, createContext, useState, useEffect, useCallback } from 'react'
+import { useSetRecoilState } from 'recoil'
 import useTrackLogs, { defaultLogData, trackedLogData } from '../../hooks/useTrackLogs'
-import { FC, ReactElement, createContext, useState, useEffect, useCallback } from 'react'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
-import { beaconNetworkError, validatorNetworkError, activeDevice } from '../../recoil/atoms'
+import { beaconNetworkError, validatorNetworkError } from '../../recoil/atoms'
 
 export interface SSELogWrapperProps {
   trigger?: number
@@ -24,49 +24,56 @@ export const SSEContext = createContext<{
   triggerRefresh: () => {},
 })
 
-const SSELogProvider: FC<SSELogWrapperProps> = ({ children, trigger = 10000 }) => {
+const SSELogProvider: FC<SSELogWrapperProps> = React.memo(function ({ children, trigger = 10000 }) {
   const [, setTrigger] = useState(false)
   const setBeaconNetworkError = useSetRecoilState(beaconNetworkError)
   const setValidatorNetworkError = useSetRecoilState(validatorNetworkError)
-  const [intervalId, setIntervalId] = useState<NodeJS.Timer | undefined>(undefined)
-  const { beaconUrl, validatorUrl } = useRecoilValue(activeDevice)
+  const [intervalId, setIntervalId] = useState<any | undefined>(undefined)
+  const [isReady, setReady] = useState(false)
 
-  const handleBeaconLogError = () => {
-    clearRefreshInterval()
-    setBeaconNetworkError(true)
-  }
-
-  const handleValidatorLogError = () => {
-    clearRefreshInterval()
-    setValidatorNetworkError(true)
-  }
-
-  const beaconLogs = useTrackLogs(`${beaconUrl}/lighthouse/logs`, handleBeaconLogError)
-  const validatorLogs = useTrackLogs(`${validatorUrl}/logs`, handleValidatorLogError)
+  useEffect(() => {
+    if (intervalId) {
+      setReady(true)
+    }
+  }, [intervalId, setReady])
 
   const clearRefreshInterval = useCallback(() => {
     if (intervalId) {
       clearInterval(intervalId)
       setIntervalId(undefined)
     }
-  }, [intervalId])
+  }, [intervalId, setIntervalId])
 
-  const triggerRefresh = () => {
-    beaconLogs.cleanLogs()
-    validatorLogs.cleanLogs()
+  const handleBeaconLogError = useCallback(() => {
+    clearRefreshInterval()
+    setBeaconNetworkError(true)
+  }, [clearRefreshInterval, setBeaconNetworkError])
+
+  const handleValidatorLogError = useCallback(() => {
+    clearRefreshInterval()
+    setValidatorNetworkError(true)
+  }, [clearRefreshInterval, setValidatorNetworkError])
+
+  const beaconLogs = useTrackLogs('/beacon-logs', handleBeaconLogError, isReady)
+  const validatorLogs = useTrackLogs('/validator-logs', handleValidatorLogError, isReady)
+
+  const triggerRefresh = useCallback(() => {
     setTrigger((prevTrigger) => !prevTrigger)
-  }
+  }, [setTrigger])
 
   const startRefreshInterval = useCallback(() => {
     const interval = setInterval(() => {
       triggerRefresh()
-    }, trigger)
+    }, trigger as number)
+
+    setTimeout(() => triggerRefresh(), trigger / 2)
 
     setIntervalId(interval)
 
     return interval
-  }, [beaconLogs.cleanLogs, validatorLogs.cleanLogs, trigger])
+  }, [trigger, triggerRefresh, setIntervalId])
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     startRefreshInterval()
   }, [])
@@ -91,6 +98,8 @@ const SSELogProvider: FC<SSELogWrapperProps> = ({ children, trigger = 10000 }) =
       {children}
     </SSEContext.Provider>
   )
-}
+})
+
+SSELogProvider.displayName = 'SSELogProvider'
 
 export default SSELogProvider

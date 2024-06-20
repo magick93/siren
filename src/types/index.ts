@@ -1,4 +1,14 @@
 import { Protocol } from '../constants/enums'
+import { BeaconNodeSpecResults, SyncData } from './beacon'
+import {
+  Diagnostics,
+} from './diagnostic'
+
+export interface NextFetchRequestInit extends RequestInit {
+  next?: {
+    revalidate?: number
+  }
+}
 
 export enum StatusColor {
   DARK = 'bg-dark100',
@@ -26,21 +36,26 @@ export type Endpoint = {
   port: number
 }
 
-export type Alert = {
-  message: string
-  subText: string
-  severity: StatusColor
-}
-
-export type CurrencyPrefix = {
-  prefix: string
-  formattedPrefix?: string
-}
-
 export type SemanticVersion = {
   major: number
   minor: number
   patch: number
+}
+
+export type LogData = {
+  id: number
+  level: LogLevels,
+  type: LogType,
+  data: string
+  isHidden: boolean,
+  createdAt: string
+  updatedAt: string
+}
+
+export type LogMetric = {
+  warningLogs: LogData[],
+  errorLogs: LogData[],
+  criticalLogs: LogData[],
 }
 
 export enum LogType {
@@ -62,18 +77,6 @@ export type SSELog = {
   service: string
   time: string
   [key: string]: any
-}
-
-export type LogCounts = {
-  totalLogsPerHour: number
-  criticalPerHour: number
-  warningsPerHour: number
-  errorsPerHour: number
-}
-
-export interface PollingOptions {
-  time?: number
-  isReady?: boolean
 }
 
 export interface DeviceList {
@@ -125,3 +128,9 @@ export type ProposerDuty = {
 
 export type OptionalString = string | undefined
 export type OptionalBoolean = boolean | undefined
+
+export interface SetupProps {
+  beaconSpec: BeaconNodeSpecResults
+  initNodeHealth: Diagnostics
+  initSyncData: SyncData
+}

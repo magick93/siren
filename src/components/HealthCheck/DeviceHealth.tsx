@@ -1,11 +1,17 @@
-import DiagnosticSummaryCard from '../DiagnosticSummaryCard/DiagnosticSummaryCard'
-import { DiagnosticRate, DiagnosticType } from '../../constants/enums'
-import DiagnosticCard from '../DiagnosticCard/DiagnosticCard'
-import useDeviceDiagnostics from '../../hooks/useDeviceDiagnostics'
+import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import addSuffixString from '../../utilities/addSuffixString'
+import addSuffixString from '../../../utilities/addSuffixString'
+import { DiagnosticRate, DiagnosticType } from '../../constants/enums'
+import { Diagnostics } from '../../types/diagnostic'
+import DiagnosticCard from '../DiagnosticCard/DiagnosticCard'
+import DiagnosticSummaryCard from '../DiagnosticSummaryCard/DiagnosticSummaryCard'
 
-const DeviceHealth = () => {
+export interface DeviceHealthProps {
+  nodeHealth: Diagnostics
+  isSyncing: boolean
+}
+
+const DeviceHealth: FC<DeviceHealthProps> = ({ nodeHealth, isSyncing }) => {
   const { t } = useTranslation()
   const {
     totalDiskSpace,
@@ -17,7 +23,9 @@ const DeviceHealth = () => {
     cpuUtilization,
     cpuStatus,
     frequency,
-  } = useDeviceDiagnostics()
+  } = nodeHealth
+
+  const diskData = isSyncing ? diskStatus.syncing : diskStatus.synced
 
   return (
     <div className='w-full md:h-24 flex flex-col space-y-3 md:space-y-0 md:flex-row md:space-x-2'>
@@ -27,7 +35,7 @@ const DeviceHealth = () => {
         title={t('disk')}
         metric={addSuffixString(Math.round(totalDiskSpace), 'GB')}
         subTitle={t('utilization', { percent: diskUtilization })}
-        status={diskStatus}
+        status={diskData}
       />
       <DiagnosticCard
         size='health'

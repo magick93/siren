@@ -1,8 +1,8 @@
-import Status, { StatusProps } from './Status'
 import { Story } from '@storybook/react'
 import { StatusColor } from '../../types'
+import Status, { StatusProps } from './Status'
 
-export default {
+const StatusStory = {
   title: 'Status Dot',
   component: Status,
 }
@@ -23,3 +23,5 @@ export const Error = Template.bind({})
 Error.args = {
   status: StatusColor.ERROR,
 }
+
+export default StatusStory

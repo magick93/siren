@@ -1,19 +1,22 @@
-import Input from '../Input/Input'
-import useUiMode from '../../hooks/useUiMode'
-import { useRecoilState } from 'recoil'
-import { validatorSearch } from '../../recoil/atoms'
+import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
+import useUiMode from '../../hooks/useUiMode'
+import Input from '../Input/Input'
 
-const ValidatorSearchInput = () => {
+export interface ValidatorSearchInputProps {
+  onChange: (value: string) => void
+  value: string
+}
+
+const ValidatorSearchInput: FC<ValidatorSearchInputProps> = ({ onChange, value }) => {
   const { t } = useTranslation()
   const { mode } = useUiMode()
-  const [search, setSearch] = useRecoilState(validatorSearch)
 
   return (
     <Input
       uiMode={mode}
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
       inputStyle='secondary'
       icon='bi-search'
       placeholder={t('search')}

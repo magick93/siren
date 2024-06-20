@@ -1,3 +1,5 @@
+import { StatusColor } from './index'
+
 export type ValidatorStatus =
   | 'pending_initialized'
   | 'pending_queued'
@@ -18,6 +20,13 @@ export type Validator = {
   pubKey: string
 }
 
+export type ValidatorDetail = {
+  index: string
+  pubkey: string
+  status: ValidatorStatus
+  withdrawal_credentials: string
+}
+
 export type ValidatorInfo = {
   name: string
   balance: number
@@ -31,6 +40,11 @@ export type ValidatorInfo = {
   missed: number
   attested: number
   aggregated: number
+}
+
+export type ValidatorBalanceInfo = {
+  validators: ValidatorInfo[]
+  balances: FormattedValidatorCache[]
 }
 
 export type LighthouseValidatorResult = {
@@ -76,14 +90,6 @@ export type FormattedValidatorCache = {
   [key: number]: number[]
 }
 
-export type ValidatorCacheResults = {
-  [key: string]: ValidatorCacheDataInfo
-}
-
-export type ValidatorCacheDataInfo = {
-  info: ValidatorEpochResult[]
-}
-
 export type ValidatorCache = {
   [key: number]: ValidatorEpochResult[]
 }
@@ -93,21 +99,15 @@ export type ValidatorEpochResult = {
   total_balance: number
 }
 
-export type activeValidatorDetail = {
-  status: ValidatorStatus
-  pubKey?: string
-  index: string
-  name: string
-}
-
-export type ValidatorGraffitiResults = {
-  [key: string]: string
-}
-
 export type SignedExitData = {
   message: {
     epoch: string
     validator_index: string
   }
   signature: string
+}
+
+export type ValidatorInclusionData = {
+  rate: number
+  status: StatusColor
 }

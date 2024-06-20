@@ -1,44 +1,50 @@
 import { FunctionComponent, SVGProps } from 'react'
 
-import { ReactComponent as DashLogo } from '../assets/images/dashboard.svg'
-import { ReactComponent as ValidatorLogo } from '../assets/images/validators.svg'
-import { ReactComponent as LogsLogo } from '../assets/images/logs.svg'
-import { ReactComponent as GrafanaLogo } from '../assets/images/grafana.svg'
-import { ReactComponent as SettingsLogo } from '../assets/images/settings.svg'
-import { ContentView } from './enums'
-import { EarningOption } from '../types/validator'
+import DashLogo from '../assets/images/dashboard.svg'
+import GrafanaLogo from '../assets/images/grafana.svg'
+import LogsLogo from '../assets/images/logs.svg'
+import SettingsLogo from '../assets/images/settings.svg'
+import ValidatorLogo from '../assets/images/validators.svg'
 import { ClientProvider, LogType } from '../types'
+import { EarningOption } from '../types/validator'
+import { ContentView } from './enums'
 
 export type ViewType = {
   title: string
   isDisabled?: boolean
   logoComponent: FunctionComponent<SVGProps<SVGSVGElement>>
   key: ContentView
+  href: string
 }
 
 export const VIEW = {
   DASH: {
+    href: '/dashboard',
     title: 'sidebar.dashboard',
     logoComponent: DashLogo,
     key: ContentView.MAIN,
   },
   VALIDATORS: {
+    href: '/dashboard/validators',
     title: 'sidebar.validatorManagement',
     logoComponent: ValidatorLogo,
     key: ContentView.VALIDATORS,
   },
   LOGS: {
+    href: '/dashboard/logs',
     title: 'sidebar.logs',
     logoComponent: LogsLogo,
     key: ContentView.LOGS,
   },
   GRAFANA: {
+    href: '/dashboard/grafana',
     title: 'sidebar.grafana',
     logoComponent: GrafanaLogo,
     key: ContentView.GRAFANA,
     isDisabled: true,
   },
   SETTINGS: {
+    href: '/dashboard/settings',
     title: 'sidebar.settings',
     logoComponent: SettingsLogo,
     key: ContentView.SETTINGS,
@@ -125,7 +131,8 @@ export const EARNINGS_OPTIONS = [
 ] as EarningOption[]
 
 export const BeaconChaValidatorUrl = 'https://beaconcha.in/validator'
-export const GoerliBeaconChaValidatorUrl = 'https://goerli.beaconcha.in/validator'
+export const HoleskyBeaconChaValidatorUrl = 'https://holesky.beaconcha.in/validator'
+export const SepoliaBeaconChaValidatorUrl = 'https://sepolia.beaconcha.in/validator'
 export const DiscordUrl = 'https://discord.gg/mB3VZQpYvN'
 export const LighthouseBookUrl = 'https://lighthouse-book.sigmaprime.io/'
 export const SigPGithubUrl = 'https://github.com/sigp'
@@ -133,18 +140,6 @@ export const SigPTwitter = 'https://twitter.com/sigp_io'
 export const SigPIoUrl = 'https://sigmaprime.io/'
 export const WithdrawalInfoLink = 'https://launchpad.ethereum.org/en/withdrawals'
 export const CoinbaseExchangeRateUrl = 'https://api.coinbase.com/v2/exchange-rates?currency=ETH'
-
-export const DEFAULT_VALIDATOR_COUNT = {
-  active_exiting: 0,
-  active_ongoing: 0,
-  active_slashed: 0,
-  exited_slashed: 0,
-  exited_unslashed: 0,
-  pending_initialized: 0,
-  pending_queued: 0,
-  withdrawal_done: 0,
-  withdrawal_possible: 0,
-}
 
 export const CURRENCIES = [
   'AUD',

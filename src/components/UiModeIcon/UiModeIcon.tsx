@@ -1,8 +1,8 @@
-import { UiMode } from '../../constants/enums'
-import { ReactComponent as ToggleSun } from '../../assets/images/sun.svg'
-import { ReactComponent as ToggleMoon } from '../../assets/images/moon.svg'
 import { FC } from 'react'
-import addClassString from '../../utilities/addClassString'
+import addClassString from '../../../utilities/addClassString'
+import ToggleMoon from '../../assets/images/moon.svg'
+import ToggleSun from '../../assets/images/sun.svg'
+import { UiMode } from '../../constants/enums'
 
 export interface UiModeIconProps {
   mode?: UiMode
