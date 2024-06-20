@@ -37,7 +37,7 @@ const ValidatorGraffiti:FC<ValidatorGraffitiProps> = ({validator}) => {
 
   const fetchGraffiti = async () => {
     try {
-      const { data } = await axios.get(`/api/validator-graffiti/${index}`, config)
+      const { data } = await axios.get(`/api/validator-graffiti?index=${index}`, config)
 
       if (data) {
         setGraffiti(data.data)
@@ -77,7 +77,7 @@ const ValidatorGraffiti:FC<ValidatorGraffitiProps> = ({validator}) => {
 
   return (
     <>
-      <AuthPrompt isLoading={isLoading} maxHeight="400px" mode={mode} onClose={closeAuth} isVisible={isAuth} onSubmit={updateGraffiti} />
+      <AuthPrompt isLoading={isLoading} mode={mode} onClose={closeAuth} isVisible={isAuth} onSubmit={updateGraffiti} />
       <ValidatorGraffitiInput isLoading={isLoading} onSubmit={storeGraffitiInput} value={graffiti} />
     </>
   )

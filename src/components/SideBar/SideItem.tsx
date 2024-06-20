@@ -3,7 +3,6 @@ import { FC, ReactElement } from 'react'
 import addClassString from '../../../utilities/addClassString'
 import { OptionalBoolean } from '../../types'
 import DisabledTooltip from '../DisabledTooltip/DisabledTooltip'
-import { OptionalBoolean } from '../../types'
 
 export interface SideItemProps {
   children: ReactElement

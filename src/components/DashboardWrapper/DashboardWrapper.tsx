@@ -1,9 +1,8 @@
-import React, { FC, MutableRefObject, ReactNode, useEffect, useState } from 'react';
+import React, { FC, MutableRefObject, ReactNode, useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
-import { Storage } from '../../constants/enums';
+import { Storage, UiMode } from '../../constants/enums';
 import useLocalStorage from '../../hooks/useLocalStorage';
-import useUiMode from '../../hooks/useUiMode';
-import { beaconNodeSpec } from '../../recoil/atoms';
+import { beaconNodeSpec, uiMode } from '../../recoil/atoms';
 import { BeaconNodeSpecResults, SyncData } from '../../types/beacon';
 import { Diagnostics } from '../../types/diagnostic';
 import { UiThemeStorage } from '../../types/storage';
@@ -34,18 +33,16 @@ const DashboardWrapper: FC<DashboardWrapperProps> = ({
   const {
     beaconSync: { isSyncing },
   } = syncData
-  const [isReady, setReady] = useState(false)
-  const { toggleUiMode } = useUiMode()
+  const setUiTheme = useSetRecoilState(uiMode)
   const setBeaconSpec = useSetRecoilState(beaconNodeSpec)
   const [uiThemeStorage] = useLocalStorage<UiThemeStorage>(Storage.UI, undefined)
 
   useEffect(() => {
-    if(isReady) {
-      toggleUiMode(uiThemeStorage)
+    setUiTheme(uiThemeStorage || UiMode.LIGHT)
+    if(uiThemeStorage === UiMode.DARK) {
+      document.body.style.backgroundColor = '#1E1E1E';
     }
-
-    setReady(true)
-  }, [isReady, setReady])
+  }, [uiThemeStorage, setUiTheme])
 
   useEffect(() => {
     setBeaconSpec(beaconSpec)

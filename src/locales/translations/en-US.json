@@ -445,6 +445,10 @@
     "severe": "Severe",
     "warning": "Warning",
     "fair": "Fair",
+    "dismiss": {
+      "success": "Successfully dismissed alert!",
+      "error": "Error occurred, unable to dismiss alert!"
+    },
     "beaconNotSync": "Beacon Node is not in sync",
     "ethClientNotSync": "Ethereum Client is not in sync",
     "excessiveWarningLogs": "Unusual amount of warning logs detected",
@@ -460,5 +464,28 @@
     }
   },
   "collapseInfo": "Collapse Info",
-  "expandInfo": "Expand Info"
+  "expandInfo": "Expand Info",
+  "configModal": {
+    "title": "Configuration Error!",
+    "learnMore": "Learn More",
+    "description": "Siren was unable to establish a successful connection to designated {{subject}} node... Please review your configuration file and make appropriate adjustments. For additional information refer to the Lighthouse Book."
+  },
+  "versionModal": {
+    "title": "Version Update!",
+    "update": "Update Lighthouse",
+    "message": "Siren detects <0>Lighthouse v{{version}}</0>. However to function properly, Siren requires a minimum of <1>Lighthouse v{{requirement}}</1>. Please ensure your Lighthouse version meets or exceeds this requirement in order to proceed."
+  },
+  "authPrompt": {
+    "authRequired": "This action requires authentication. Please provide your session password to continue. Please review your configuration file and make appropriate adjustments if necessary.",
+    "authenticate": "Authenticate",
+    "noPasswordFound": "No Session Password found",
+    "invalidPassword": "Invalid password. Please try again.",
+    "unableToReach": "Unable to reach backend.",
+    "defaultErrorMessage": "Error reaching backend server..."
+  },
+  "errorPage": {
+    "title": "Opps!",
+    "subText": "Siren seems to have encountered an unexpected error. Please review your configuration and or node connections to continue to your dashboard.",
+    "cta": "Go Back"
+  }
 }

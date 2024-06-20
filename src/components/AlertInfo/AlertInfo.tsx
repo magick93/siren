@@ -1,24 +1,34 @@
-import Typography from '../Typography/Typography'
-import AlertCard from '../AlertCard/AlertCard'
-import { useTranslation } from 'react-i18next'
-import useDiagnosticAlerts from '../../hooks/useDiagnosticAlerts'
-import useDivDimensions from '../../hooks/useDivDimensions'
-import { useEffect, useMemo, useState } from 'react'
-import sortAlertMessagesBySeverity from '../../utilities/sortAlerts'
-import { StatusColor } from '../../types'
-import AlertFilterSettings, { FilterValue } from '../AlertFilterSettings/AlertFilterSettings'
-import useMediaQuery from '../../hooks/useMediaQuery'
-import { useRecoilValue } from 'recoil'
-import ProposerAlerts from '../ProposerAlerts/ProposerAlerts'
-import { proposerDuties } from '../../recoil/atoms'
+import { FC, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useRecoilValue } from 'recoil';
+import sortAlertMessagesBySeverity from '../../../utilities/sortAlerts';
+import useDiagnosticAlerts from '../../hooks/useDiagnosticAlerts';
+import useDivDimensions from '../../hooks/useDivDimensions';
+import useMediaQuery from '../../hooks/useMediaQuery';
+import { proposerDuties } from '../../recoil/atoms';
+import { LogLevels, StatusColor } from '../../types';
+import AlertCard from '../AlertCard/AlertCard';
+import AlertFilterSettings, { FilterValue } from '../AlertFilterSettings/AlertFilterSettings';
+import { LogsInfoProps } from '../DiagnosticTable/LogsInfo';
+import ProposerAlerts, { ProposerAlertsProps } from '../ProposerAlerts/ProposerAlerts';
+import Typography from '../Typography/Typography';
+import PriorityLogAlerts from './PriorityLogAlerts';
 
-const AlertInfo = () => {
+export interface AlertInfoProps extends Omit<ProposerAlertsProps, 'duties'>, LogsInfoProps {}
+
+const AlertInfo: FC<AlertInfoProps> = ({metrics, ...props}) => {
   const { t } = useTranslation()
   const { alerts, dismissAlert, resetDismissed } = useDiagnosticAlerts()
   const { ref, dimensions } = useDivDimensions()
   const headerDimensions = useDivDimensions()
   const [filter, setFilter] = useState('all')
   const duties = useRecoilValue(proposerDuties)
+
+  const priorityLogAlerts = useMemo(() => {
+    return Object.values(metrics).flat().filter(({level}) =>
+      level === LogLevels.CRIT || level === LogLevels.ERRO)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [metrics]);
 
   const setFilterValue = (value: FilterValue) => setFilter(value)
   const isMobile = useMediaQuery('(max-width: 425px)')
@@ -33,8 +43,11 @@ const AlertInfo = () => {
     return sortAlertMessagesBySeverity(baseAlerts)
   }, [alerts, filter])
 
-  const isFiller = formattedAlerts.length + (duties?.length || 0) < 6
-  const isAlerts = formattedAlerts.length > 0 || duties?.length > 0
+  const isSeverFilter = (filter === 'all' || filter === StatusColor.ERROR)
+
+  const isFiller = formattedAlerts.length + (duties?.length || 0) + (priorityLogAlerts.length || 0) < 6
+  const isPriorityAlerts = priorityLogAlerts.length > 0
+  const isAlerts = formattedAlerts.length > 0 || duties?.length > 0 || isPriorityAlerts
   const isProposerAlerts =
     duties?.length > 0 && (filter === 'all' || filter === StatusColor.SUCCESS)
 
@@ -44,7 +57,7 @@ const AlertInfo = () => {
     }, 60000)
 
     return () => clearInterval(intervalId)
-  }, [])
+  }, [resetDismissed])
 
   return (
     <div ref={ref} className='h-full w-full flex flex-col md:border-l-0 border-t-0 border-style500'>
@@ -70,6 +83,7 @@ const AlertInfo = () => {
         >
           {isAlerts && (
             <div className={`overflow-scroll scrollbar-hide ${!isFiller ? 'flex-1' : ''}`}>
+              {isPriorityAlerts && isSeverFilter && (<PriorityLogAlerts alerts={priorityLogAlerts} />)}
               {formattedAlerts.map((alert) => {
                 const { severity, subText, message, id } = alert
                 const count =
@@ -85,7 +99,7 @@ const AlertInfo = () => {
                   />
                 )
               })}
-              {isProposerAlerts && <ProposerAlerts duties={duties} />}
+              {isProposerAlerts && <ProposerAlerts {...props} duties={duties} />}
             </div>
           )}
           {isFiller && (

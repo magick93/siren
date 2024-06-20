@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import Lighthouse from '../../assets/images/lightHouse.svg';
+import Lighthouse from '../../assets/images/lightHouse.svg'
 import { UiMode } from '../../constants/enums';
 import AuthenticationForm, { AuthFormProps } from '../../forms/AuthenticationForm';
 import AnimatedHeader from '../AnimatedHeader/AnimatedHeader';
@@ -16,21 +16,20 @@ export interface AuthModalProps extends Omit<AuthFormProps, 'children'>{
   isNamePrompt?: boolean
   onClose?: () => void
   mode: UiMode
-  maxHeight?: string
 }
 
-const AuthPrompt:FC<AuthModalProps> = ({onSubmit, isVisible, isLoading, mode, onClose, isNamePrompt, maxHeight = '550px'}) => {
+const AuthPrompt:FC<AuthModalProps> = ({onSubmit, isVisible, isLoading, mode, onClose, isNamePrompt}) => {
   const {t} = useTranslation()
   const [isReady, setReady] = useState(false)
 
   const showAnim = () => setReady(true)
 
   return (
-    <RodalModal onAnimationEnd={showAnim as any} styles={{ maxWidth: '500px', height: 'auto', maxHeight }} onClose={onClose} isVisible={isVisible}>
+    <RodalModal onAnimationEnd={showAnim as any} styles={{ maxWidth: '500px', height: 'auto', maxHeight: '550px' }} onClose={onClose} isVisible={isVisible}>
       <AuthenticationForm isVisible={isVisible} onSubmit={onSubmit}>
         {({control, isValid}) => (
           <div>
-            <AnimatedHeader speed={.1} name="auth-prompt" isReady={isReady} color="#ffffff" className="w-full h-24 overflow-hidden bg-gradient-to-r from-primary to-tertiary"/>
+            <AnimatedHeader speed={.1} name="auth-prompt" isReady={isReady} className="w-full h-24 overflow-hidden bg-gradient-to-r from-primary to-tertiary"/>
             <div className="p-6 relative">
               <div className="rounded-full p-1 absolute left-1/2 -translate-x-1/2 flex item-center justify-center top-0 -translate-y-1/2 bg-gradient-to-r from-primary to-tertiary">
                 <Lighthouse className="text-white w-18 h-18"/>
@@ -47,10 +46,7 @@ const AuthPrompt:FC<AuthModalProps> = ({onSubmit, isVisible, isLoading, mode, on
                     control={control as any}
                     render={({ field: { ref: _ref, ...props }, fieldState }) => (
                       <Input
-                        tooltip={t('authPrompt.tooltip.displayName')}
-                        toolTipId="displayName"
-                        toolTipMode={UiMode.LIGHT}
-                        label={t('authPrompt.label.name')}
+                        label="User Name"
                         uiMode={mode}
                         error={fieldState.error?.message}
                         {...props}
@@ -64,9 +60,7 @@ const AuthPrompt:FC<AuthModalProps> = ({onSubmit, isVisible, isLoading, mode, on
                   render={({ field: { ref: _ref, ...props }, fieldState }) => (
                     <Input
                       isAutoFocus
-                      tooltip={t('authPrompt.tooltip.sessionPassword')}
-                      toolTipId="sessionPassword"
-                      label={isNamePrompt ? t('authPrompt.label.sessionPassword') : undefined}
+                      label={isNamePrompt ? 'Password' : undefined}
                       autoComplete="new-password"
                       type="password"
                       uiMode={mode}

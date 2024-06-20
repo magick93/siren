@@ -52,6 +52,7 @@ const handleSSe = (res, req, url) => {
   }
 
   req.on('close', () => {
+    console.error('Request closed...')
     clearInterval(heartbeatInterval)
     eventSource.close()
     res.end()

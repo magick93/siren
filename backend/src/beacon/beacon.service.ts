@@ -17,7 +17,6 @@ export class BeaconService {
     private utilsService: UtilsService
   ) {}
   private beaconUrl = process.env.BEACON_URL;
-  private isDebug = process.env.DEBUG === 'true';
 
   async fetchBeaconNodeVersion(): Promise<string> {
     try {
@@ -114,9 +113,7 @@ export class BeaconService {
         url: `${this.beaconUrl}/eth/v1/node/syncing`,
       });
 
-      if(this.isDebug) {
-        console.log(`fetching 2nd syncData from node for ${api}.....`)
-      }
+      console.log(`fetching 2nd syncData from node for ${api}.....`)
 
       syncData = {
         beaconSync: {
@@ -124,9 +121,7 @@ export class BeaconService {
         }
       }
     } else {
-      if(this.isDebug) {
-        console.log(`fetching cached syncData for ${api}.....`)
-      }
+      console.log(`fetching cached syncData for ${api}.....`)
     }
 
     return  syncData.beaconSync.headSlot;
@@ -222,8 +217,8 @@ export class BeaconService {
       })
     }
      catch (e) {
-      console.error(e?.response?.data);
-      return [];
+      console.error(e);
+      throwServerError('Unable to fetch proposer data');
     }
   }
 

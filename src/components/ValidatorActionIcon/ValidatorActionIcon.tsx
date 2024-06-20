@@ -2,7 +2,6 @@ import { FC } from 'react'
 import addClassString from '../../../utilities/addClassString'
 import { OptionalBoolean } from '../../types'
 import LoadingDots from '../LoadingDots/LoadingDots'
-import { OptionalBoolean } from '../../types'
 
 export interface ValidatorActionIconProps {
   icon: string

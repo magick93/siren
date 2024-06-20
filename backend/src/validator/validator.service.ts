@@ -5,7 +5,7 @@ import {
   BeaconValidatorResult, ValidatorCache, ValidatorDetail, ValidatorInfo
 } from '../../../src/types/validator';
 import formatDefaultValName from '../../../utilities/formatDefaultValName';
-import { formatUnits } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
 import { Metric } from './entities/metric.entity';
 import getAverageKeyValue from '../../../utilities/getAverageKeyValue';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -132,6 +132,7 @@ export class ValidatorService {
     try {
       const options = index ? {where: {index}} : undefined
       const metrics = await this.utilsService.fetchAll(Metric, options)
+      console.log(metrics)
       const metricsData = metrics.map(metric => JSON.parse(metric.data))
 
       const targetEffectiveness = getAverageKeyValue(metricsData, 'attestation_target_hit_percentage')
