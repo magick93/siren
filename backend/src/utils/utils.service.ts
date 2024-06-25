@@ -18,8 +18,9 @@ export class UtilsService {
     private httpService: HttpService
   ) {}
 
+  private isDebug = process.env.DEBUG === 'true';
+
   getErrorMessage(code: string | number): string {
-    console.log(code)
     if(code === 'ECONNREFUSED') {
       return 'Unable to connect to Beacon and Validator endpoints...'
     }
@@ -89,7 +90,9 @@ export class UtilsService {
     const cachedData = await this.cacheManager.get(key)
 
     if(cachedData) {
-      console.log(`fetching from CACHE, key: ${key}....`)
+      if(this.isDebug) {
+        console.log(`fetching from CACHE, key: ${key}....`)
+      }
       return cachedData
     }
 
@@ -97,7 +100,9 @@ export class UtilsService {
 
     await this.cacheManager.set(key, data, ttl)
 
-    console.log(`fetching from NODE, key: ${key} ......`)
+    if(this.isDebug) {
+      console.log(`fetching from NODE, key: ${key} ......`)
+    }
 
     return data
   }
