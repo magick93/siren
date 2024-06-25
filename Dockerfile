@@ -31,7 +31,7 @@ FROM node:${node_version}-alpine AS production
 
 ENV NODE_ENV=production
 RUN npm install --global pm2; \
-    apk add -U nginx openssl curl
+    apk add --no-cache nginx openssl curl
 
 RUN rm /etc/nginx/http.d/default.conf; \
     ln -s /app/docker-assets/siren-http.conf /etc/nginx/http.d/siren-http.conf
