@@ -21,25 +21,22 @@ developers. Specifically the [Lighthouse UI](https://lighthouse-book.sigmaprime.
 
 ### Docker (Recommended)
 
-Docker is the recommended way to run a webserver that hosts Siren and can be
-connected to via a web browser.
+Docker is the recommended way to run Siren. This will expose Siren as a webapp. 
 
-`docker` is required to be installed with the service running.
-
-Configuration is doen with environemnt variables, the best way to get started is by copying `.env.example` to `.env` and editing the relvant sections (typically, this would at least include `BEACON_URL`, `VALIDATOR_URL` and `API_TOKEN`)
+Configuration is done through environemnt variables, the best way to get started is by copying `.env.example` to `.env` and editing the relevant sections (typically, this would at least include `BEACON_URL`, `VALIDATOR_URL` and `API_TOKEN`)
 
 Then to run the image:
 
-`docker-compose up`  
+`docker compose up`
 or  
 `docker run --rm -ti --name siren -p 3443:443 --env-file $PWD/.env sigp/siren`  
 
 This will open port 3443 and allow your browser to connect. 
 
 
-To start Siren, visit `https://localhost:3443` in your web browser. (ignore the certificate warning). 
+To start Siren, visit `https://localhost:3443` in your web browser (ignore the certificate warning). 
 
-Advanced users can mount their own certificate with `-v $PWD/certs:/certs` (the config expects 3 files: `/certs/cert.pem` `/certs/key.pem` `/certs/key.pass`)
+Advanced users can mount their own certificate (the config expects 3 files: `/certs/cert.pem` `/certs/key.pem` `/certs/key.pass`)
 
 ## Building From Source
 
