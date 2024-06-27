@@ -15,7 +15,11 @@ set +a
 # if bn/vc api unreachable, print message and exit
 tests="${BEACON_URL} ${VALIDATOR_URL}"
 for test in $tests; do 
-  nc -z "${test#*//}"
+  host="${test#*//}"
+  host="${host%%:*}"
+  port="${test##*:}"
+  nc -z $host $port
+
   if [ $? -eq 1 ]; then
     printf "${test} unreachable, check settings and connection\n"
     fail=true
