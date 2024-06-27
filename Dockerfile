@@ -32,7 +32,7 @@ FROM $node_image AS production
 ENV NODE_ENV=production
 RUN npm install --global pm2; \
     apt update; \
-    apt install -y nginx openssl curl
+    apt install -y nginx openssl curl ncat
 
 RUN rm /etc/nginx/sites-enabled/default; \
     ln -s /app/docker-assets/siren-http.conf /etc/nginx/conf.d/siren-http.conf
