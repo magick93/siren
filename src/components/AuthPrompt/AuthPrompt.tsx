@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import Lighthouse from '../../assets/images/lightHouse.svg'
+import Lighthouse from '../../assets/images/lightHouse.svg';
 import { UiMode } from '../../constants/enums';
 import AuthenticationForm, { AuthFormProps } from '../../forms/AuthenticationForm';
 import AnimatedHeader from '../AnimatedHeader/AnimatedHeader';
@@ -47,7 +47,10 @@ const AuthPrompt:FC<AuthModalProps> = ({onSubmit, isVisible, isLoading, mode, on
                     control={control as any}
                     render={({ field: { ref: _ref, ...props }, fieldState }) => (
                       <Input
-                        label="User Name"
+                        tooltip={t('authPrompt.tooltip.displayName')}
+                        toolTipId="displayName"
+                        toolTipMode={UiMode.LIGHT}
+                        label={t('authPrompt.label.name')}
                         uiMode={mode}
                         error={fieldState.error?.message}
                         {...props}
@@ -61,7 +64,9 @@ const AuthPrompt:FC<AuthModalProps> = ({onSubmit, isVisible, isLoading, mode, on
                   render={({ field: { ref: _ref, ...props }, fieldState }) => (
                     <Input
                       isAutoFocus
-                      label={isNamePrompt ? 'Password' : undefined}
+                      tooltip={t('authPrompt.tooltip.sessionPassword')}
+                      toolTipId="sessionPassword"
+                      label={isNamePrompt ? t('authPrompt.label.sessionPassword') : undefined}
                       autoComplete="new-password"
                       type="password"
                       uiMode={mode}
