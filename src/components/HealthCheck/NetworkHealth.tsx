@@ -1,19 +1,26 @@
-import DiagnosticSummaryCard from '../DiagnosticSummaryCard/DiagnosticSummaryCard'
-import { DiagnosticRate, DiagnosticType } from '../../constants/enums'
-import DiagnosticCard from '../DiagnosticCard/DiagnosticCard'
-import secondsToShortHand from '../../utilities/secondsToShortHand'
+import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
-import { selectBeaconSyncInfo } from '../../recoil/selectors/selectBeaconSyncInfo'
-import { selectValidatorSyncInfo } from '../../recoil/selectors/selectValidatorSyncInfo'
-import useDeviceDiagnostics from '../../hooks/useDeviceDiagnostics'
+import secondsToShortHand from '../../../utilities/secondsToShortHand'
+import { DiagnosticRate, DiagnosticType } from '../../constants/enums'
 import { StatusColor } from '../../types'
+import { SyncData } from '../../types/beacon'
+import { Diagnostics } from '../../types/diagnostic'
+import DiagnosticCard from '../DiagnosticCard/DiagnosticCard'
+import DiagnosticSummaryCard from '../DiagnosticSummaryCard/DiagnosticSummaryCard'
 
-const NetworkHealth = () => {
+export interface NetworkHealthProps {
+  syncData: SyncData
+  nodeHealth: Diagnostics
+}
+
+const NetworkHealth: FC<NetworkHealthProps> = ({ syncData, nodeHealth }) => {
+  const {
+    beaconSync: { beaconPercentage, beaconSyncTime },
+    executionSync: { isReady, syncPercentage },
+  } = syncData
+
   const { t } = useTranslation()
-  const { beaconPercentage, beaconSyncTime } = useRecoilValue(selectBeaconSyncInfo)
-  const { isReady, syncPercentage } = useRecoilValue(selectValidatorSyncInfo)
-  const { networkName, natOpen } = useDeviceDiagnostics()
+  const { networkName, natOpen } = nodeHealth
 
   const remainingBeaconTime = secondsToShortHand(beaconSyncTime || 0)
 

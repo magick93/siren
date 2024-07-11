@@ -1,47 +1,71 @@
-import Typography from '../Typography/Typography'
-import { ReactComponent as ValidatorLogo } from '../../assets/images/validators.svg'
-import { FC } from 'react'
-import { ValidatorInfo } from '../../types/validator'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import formatEthAddress from '../../utilities/formatEthAddress'
-import { TableView } from './ValidatorTable'
-import ValidatorActionIcon from '../ValidatorActionIcon/ValidatorActionIcon'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
-import { dashView, processingBlsValidators, validatorIndex } from '../../recoil/atoms'
-import { ContentView } from '../../constants/enums'
-import StatusIcon from '../StatusIcon/StatusIcon'
-import formatBalanceColor from '../../utilities/formatBalanceColor'
-import IdenticonIcon from '../IdenticonIcon/IdenticonIcon'
-import DisabledTooltip from '../DisabledTooltip/DisabledTooltip'
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import formatBalanceColor from '../../../utilities/formatBalanceColor'
+import formatEthAddress from '../../../utilities/formatEthAddress'
+import isBlsAddress from '../../../utilities/isBlsAddress'
+import ValidatorLogo from '../../assets/images/validators.svg'
+import useLocalStorage from '../../hooks/useLocalStorage'
+import useValidatorName from '../../hooks/useValidatorName';
+import { activeValidatorId, isEditValidator, isValidatorDetail, processingBlsValidators } from '../../recoil/atoms';
 import { selectBeaconChaBaseUrl } from '../../recoil/selectors/selectBeaconChaBaseUrl'
-import isBlsAddress from '../../utilities/isBlsAddress'
+import { ValAliases } from '../../types'
+import { ValidatorInfo } from '../../types/validator'
+import DisabledTooltip from '../DisabledTooltip/DisabledTooltip'
+import IdenticonIcon from '../IdenticonIcon/IdenticonIcon'
+import StatusIcon from '../StatusIcon/StatusIcon'
 import Tooltip from '../ToolTip/Tooltip'
-import EditValidator from '../EditValidator/EditValidator'
+import Typography from '../Typography/Typography'
+import ValidatorActionIcon from '../ValidatorActionIcon/ValidatorActionIcon'
+import { TableView } from './ValidatorTable'
 
 export interface ValidatorRowProps {
   validator: ValidatorInfo
-  view?: TableView
+  view?: TableView | undefined
 }
 
 const ValidatorRow: FC<ValidatorRowProps> = ({ validator, view }) => {
   const { t } = useTranslation()
-  const setDashView = useSetRecoilState(dashView)
+  const router = useRouter()
+  const [isReady, setReady] = useState(false)
   const processingValidators = useRecoilValue(processingBlsValidators)
-  const setValidatorIndex = useSetRecoilState(validatorIndex)
-  const { name, pubKey, index, balance, rewards, status, withdrawalAddress } = validator
+  const setActiveValidatorId = useSetRecoilState(activeValidatorId)
+  const setIsEditValidator = useSetRecoilState(isEditValidator)
+  const setValDetail = useSetRecoilState(isValidatorDetail)
+  const { pubKey, index, balance, rewards, status, withdrawalAddress, name } = validator
   const rewardColor = formatBalanceColor(rewards)
-  const baseUrl = useRecoilValue(selectBeaconChaBaseUrl)
+  const baseBeaconChaUrl = useRecoilValue(selectBeaconChaBaseUrl)
+  const valHrefBase = `/dashboard/validators?id=${index}`
+  const detailHref = `${valHrefBase}&view=detail`
+  const editHref = `${valHrefBase}&view=edit`
+  const [aliases] = useLocalStorage<ValAliases>('val-aliases', {})
+
+  useEffect(() => {
+    setReady(true)
+  }, [])
+
+  const valName = useValidatorName(validator, aliases)
+  const validatorName = isReady ? valName : name
 
   const isConversionRequired = isBlsAddress(withdrawalAddress)
   const isValidatorProcessing =
     processingValidators && processingValidators.includes(validator.index.toString())
 
-  const viewValidator = () => {
-    setValidatorIndex(index)
-    setDashView(ContentView.VALIDATORS)
+  const editValidator = (id: number) => {
+    setActiveValidatorId(id);
+    setIsEditValidator(true)
+    router.push(editHref)
   }
 
-  const renderAvatar = () => {
+  const viewDetail = (id: number) => {
+    setActiveValidatorId(id);
+    setValDetail(true)
+    router.push(detailHref)
+  }
+
+  const renderAvatar = useCallback(() => {
     if (isConversionRequired) {
       return (
         <Tooltip id={`blsTransfer-${pubKey}`} maxWidth={300} text={t('blsExecution.tooltip')}>
@@ -56,17 +80,33 @@ const ValidatorRow: FC<ValidatorRowProps> = ({ validator, view }) => {
     }
 
     return <IdenticonIcon size={32} type='CIRCULAR' hash={pubKey} />
-  }
+  }, [isConversionRequired, isValidatorProcessing, pubKey])
 
   return (
     <tr className='w-full border-t-style500 h-12'>
-      <th onClick={viewValidator} className='px-2 cursor-pointer'>
-        <div className='w-full flex justify-center'>{renderAvatar()}</div>
+      <th className='px-2 cursor-pointer'>
+        {view === 'full' ? (
+          <div onClick={() => viewDetail(index)} className='w-full flex justify-center'>{renderAvatar()}</div>
+          ) : (
+          <Link href={detailHref}>
+            <div className='w-full flex justify-center'>{renderAvatar()}</div>
+          </Link>
+        )}
       </th>
-      <th onClick={viewValidator} className='w-28 cursor-pointer'>
-        <Typography className='text-left' color='text-dark500' type='text-caption2'>
-          {name}
-        </Typography>
+      <th className='w-28 cursor-pointer'>
+        {view === 'full' ? (
+          <div onClick={() => viewDetail(index)}>
+            <Typography className='text-left' color='text-dark500' type='text-caption2'>
+              {validatorName}
+            </Typography>
+          </div>
+        ) : (
+          <Link href={detailHref}>
+            <Typography className='text-left' color='text-dark500' type='text-caption2'>
+              {validatorName}
+            </Typography>
+          </Link>
+        )}
       </th>
       <th className='border-r-style500 px-2'>
         <Typography color='text-dark500' type='text-caption1'>
@@ -135,27 +175,6 @@ const ValidatorRow: FC<ValidatorRowProps> = ({ validator, view }) => {
               <div className='w-full flex justify-center'>
                 <ValidatorActionIcon
                   border='border border-primary100 dark:border-primary'
-                  icon='bi-arrow-down-circle'
-                />
-              </div>
-            </DisabledTooltip>
-          </th>
-          <th className='px-2'>
-            <DisabledTooltip>
-              <div className='w-full flex justify-center'>
-                <ValidatorActionIcon
-                  border='border border-dark700'
-                  color='text-dark700 dark:text-dark400'
-                  icon='bi-box-arrow-right'
-                />
-              </div>
-            </DisabledTooltip>
-          </th>
-          <th className='px-2'>
-            <DisabledTooltip>
-              <div className='w-full flex justify-center'>
-                <ValidatorActionIcon
-                  border='border border-primary100 dark:border-primary'
                   icon='bi-key-fill'
                 />
               </div>
@@ -163,28 +182,39 @@ const ValidatorRow: FC<ValidatorRowProps> = ({ validator, view }) => {
           </th>
           <th className='px-2'>
             <div className='w-full flex justify-center'>
-              <EditValidator validator={validator} />
+              <ValidatorActionIcon
+                onClick={() => editValidator(index)}
+                border='border border-primary100 dark:border-primary'
+                icon='bi-pencil-square'
+              />
             </div>
           </th>
         </>
       )}
       <th className='border-r-style500 px-2'>
         <div className='w-full flex justify-center'>
-          <a target='_blank' rel='noreferrer' href={`${baseUrl}/${index}`}>
+          <a target='_blank' rel='noreferrer' href={`${baseBeaconChaUrl}/${index}`}>
             <ValidatorActionIcon icon='bi-box-arrow-in-up-right' />
           </a>
         </div>
       </th>
       <th className='px-2'>
         <div className='w-full flex justify-center'>
-          <div
-            onClick={viewValidator}
-            className='cursor-pointer w-8 h-8 border border-primary100 dark:border-primary bg-dark25 dark:bg-dark750 rounded-full flex items-center justify-center'
-          >
-            <div className='w-4 h-4'>
-              <ValidatorLogo className='text-primary' />
+          {view === 'full' ? (
+            <div onClick={() => viewDetail(index)} className='cursor-pointer w-8 h-8 border border-primary100 dark:border-primary bg-dark25 dark:bg-dark750 rounded-full flex items-center justify-center'>
+              <div className='w-4 h-4'>
+                <ValidatorLogo className='text-primary' />
+              </div>
             </div>
-          </div>
+          ) : (
+            <Link href={detailHref}>
+              <div className='cursor-pointer w-8 h-8 border border-primary100 dark:border-primary bg-dark25 dark:bg-dark750 rounded-full flex items-center justify-center'>
+                <div className='w-4 h-4'>
+                  <ValidatorLogo className='text-primary' />
+                </div>
+              </div>
+            </Link>
+          )}
         </div>
       </th>
     </tr>

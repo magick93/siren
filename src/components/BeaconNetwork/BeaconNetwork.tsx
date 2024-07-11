@@ -1,13 +1,13 @@
+import { useTranslation } from 'react-i18next'
 import { useRecoilValue } from 'recoil'
 import { selectBnChain } from '../../recoil/selectors/selectBnChain'
 import Typography from '../Typography/Typography'
-import { useTranslation } from 'react-i18next'
 
 const BeaconNetwork = () => {
   const { t } = useTranslation()
   const bnNetwork = useRecoilValue(selectBnChain)
 
-  return bnNetwork ? (
+  return (
     <div
       data-testid='beaconNetwork'
       className='flex flex-col h-full py-1.5 pl-2 pr-4 justify-between border-l border-r border-borderLight dark:border-borderDark'
@@ -23,10 +23,10 @@ const BeaconNetwork = () => {
         isUpperCase
         isBold
       >
-        {bnNetwork}
+        {bnNetwork || '-'}
       </Typography>
     </div>
-  ) : null
+  )
 }
 
 export default BeaconNetwork

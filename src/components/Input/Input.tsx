@@ -8,20 +8,21 @@ import {
   useRef,
   useEffect,
 } from 'react'
-import Typography from '../Typography/Typography'
+import { Message } from 'react-hook-form/dist/types/errors'
 import { UiMode } from '../../constants/enums'
 import Tooltip from '../ToolTip/Tooltip'
+import Typography from '../Typography/Typography'
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string
+  label?: string | undefined
   extraLabel?: string
   tooltip?: string
-  error?: string
+  error?: Message | undefined
   toolTipId?: string
   toolTipMode?: UiMode
   toolTipMaxWidth?: number
   className?: string
-  uiMode?: UiMode
+  uiMode?: UiMode | undefined
   isDisableToggle?: boolean
   isDisablePaste?: boolean
   inputStyle?: 'primary' | 'secondary' | 'noBorder'
@@ -90,7 +91,9 @@ const Input: FC<InputProps> = ({
     if (isAutoFocus && inputRef.current) {
       const timeoutId = setTimeout(() => {
         if (inputRef.current) {
-          inputRef.current.focus()
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          inputRef.current?.focus()
         }
       }, 200)
       return () => {

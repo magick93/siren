@@ -4,13 +4,15 @@ const useClickOutside = <T extends HTMLElement>(
   handler: (event: MouseEvent) => void,
   excludeRef?: RefObject<HTMLElement>,
 ) => {
-  const ref = useRef<T>(null)
+  const ref = useRef<T | null>(null)
 
   useEffect(() => {
     const listener = (event: any) => {
-      const isRefContainsTarget = !ref.current || ref.current.contains(event.target)
+      const refCurrent = ref.current
+      const target = event.target
+      const isRefContainsTarget = !refCurrent || refCurrent.contains(target)
       const isExcludeRefContainsTarget =
-        excludeRef && (!excludeRef?.current || excludeRef.current.contains(event.target))
+        excludeRef && (!excludeRef?.current || excludeRef.current.contains(target))
 
       if (isRefContainsTarget || isExcludeRefContainsTarget) {
         return
@@ -26,7 +28,7 @@ const useClickOutside = <T extends HTMLElement>(
       document.removeEventListener('mousedown', listener)
       document.removeEventListener('touchstart', listener)
     }
-  }, [ref, handler])
+  }, [ref, handler, excludeRef])
 
   return {
     ref,

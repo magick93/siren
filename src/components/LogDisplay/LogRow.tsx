@@ -1,6 +1,6 @@
+import { FC, useState } from 'react'
 import { LogLevels, SSELog } from '../../types'
 import Typography from '../Typography/Typography'
-import { FC, useState } from 'react'
 
 export interface LogRowProps {
   log: SSELog
@@ -13,10 +13,10 @@ const LogRow: FC<LogRowProps> = ({ log }) => {
     level === LogLevels.CRIT || level === LogLevels.ERRO
       ? 'text-error'
       : level === LogLevels.WARN
-      ? 'text-warning'
-      : LogLevels.INFO
-      ? 'text-success'
-      : undefined
+        ? 'text-warning'
+        : LogLevels.INFO
+          ? 'text-success'
+          : undefined
 
   const remainingData = Object.keys(log)
     .filter((key) => !['level', 'msg', 'time'].includes(key))

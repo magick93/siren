@@ -1,25 +1,34 @@
-import Tooltip from '../ToolTip/Tooltip'
-import { FC, ReactNode } from 'react'
+import { FC, ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ITooltip } from 'react-tooltip'
+import { PlacesType } from 'react-tooltip'
+import Tooltip from '../ToolTip/Tooltip'
 
 export interface DisabledTooltipProps {
   children: ReactNode
   className?: string
-  place?: ITooltip['place']
+  place?: PlacesType
 }
 
 const DisabledTooltip: FC<DisabledTooltipProps> = ({ children, place, className }) => {
   const { t } = useTranslation()
-  return (
+
+  const [isReady, setReady] = useState(false)
+
+  useEffect(() => {
+    setReady(true)
+  }, [isReady])
+
+  return isReady ? (
     <Tooltip
       className={className}
-      place={place}
+      place={place as PlacesType}
       text={t('comingSoon')}
       id={Math.random().toString()}
     >
       <div className='opacity-20 pointer-events-none'>{children}</div>
     </Tooltip>
+  ) : (
+    children
   )
 }
 

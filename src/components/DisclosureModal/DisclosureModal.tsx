@@ -1,8 +1,8 @@
 import React, { FC, ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { UiMode } from '../../constants/enums'
 import useMediaQuery from '../../hooks/useMediaQuery'
 import Button, { ButtonFace } from '../Button/Button'
-import { useTranslation } from 'react-i18next'
 import RodalModal from '../RodalModal/RodalModal'
 
 export interface DisclosureModalProps {
@@ -31,7 +31,7 @@ const DisclosureModal: FC<DisclosureModalProps> = ({
     <RodalModal
       isVisible={isOpen}
       onClose={onClose}
-      uiMode={mode && { mode }}
+      uiMode={mode ? { mode } : undefined}
       styles={{
         maxWidth: isTablet ? '448px' : '949px',
       }}

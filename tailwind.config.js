@@ -2,7 +2,7 @@
 // eslint-disable-next-line no-undef
 module.exports = {
   darkMode: 'class',
-  content: ['./src/**/*.{ts,tsx}'],
+  content: ['./src/**/*.{ts,tsx}', './app/**/*.tsx'],
   theme: {
     extend: {
       colors: {
@@ -44,12 +44,12 @@ module.exports = {
         lightError200: '#FFB7B3',
       },
       backgroundImage: {
-        lighthouse: 'url(\'./assets/images/lightHouseBg.png\')',
+        lighthouse: "url('./assets/images/lightHouseBg.png')",
       },
       fontFamily: {
-        openSauce: ['OpenSauce', 'sans-serif'],
-        roboto: ['Roboto', 'sans-serif'],
-        archivo: ['Archivo', 'sans-serif'],
+        openSauce: 'var(--openSauce)',
+        roboto: 'var(--roboto)',
+        archivo: 'var(--archivo)',
       },
       fontSize: {
         tiny: '8px',

@@ -1,21 +1,22 @@
-import RodalModal from '../RodalModal/RodalModal'
-import { useRecoilState, useSetRecoilState } from 'recoil'
-import { appView, onBoardView, sessionAuthErrorCount } from '../../recoil/atoms'
-import Typography from '../Typography/Typography'
-import { ChangeEvent, FC, ReactElement, useEffect, useState, KeyboardEvent } from 'react'
-import addClassString from '../../utilities/addClassString'
-import { AppView, OnboardView, UiMode } from '../../constants/enums'
 import CryptoJS from 'crypto-js'
+import { ChangeEvent, FC, ReactElement, useEffect, useState, KeyboardEvent } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useRecoilState, useSetRecoilState } from 'recoil'
+import addClassString from '../../../utilities/addClassString'
+import { MAX_SESSION_UNLOCK_ATTEMPTS } from '../../constants/constants'
+import { AppView, OnboardView, UiMode } from '../../constants/enums'
+import { appView, onBoardView, sessionAuthErrorCount } from '../../recoil/atoms'
+import { OptionalString } from '../../types'
 import Button, { ButtonFace } from '../Button/Button'
 import Input from '../Input/Input'
-import { MAX_SESSION_UNLOCK_ATTEMPTS } from '../../constants/constants'
-import { useTranslation } from 'react-i18next'
+import RodalModal from '../RodalModal/RodalModal'
+import Typography from '../Typography/Typography'
 
 export interface SessionAuthModalProps {
   onSuccess: (token?: string) => void
   onFail?: () => void
   isOpen: boolean
-  encryptedToken?: string
+  encryptedToken?: OptionalString
   defaultToken?: string
   onClose?: () => void
   children?: ReactElement | ReactElement[]
@@ -43,7 +44,7 @@ const SessionAuthModal: FC<SessionAuthModalProps> = ({
     if (errorCount >= MAX_SESSION_UNLOCK_ATTEMPTS) {
       onFail?.()
     }
-  }, [errorCount])
+  }, [errorCount, onFail])
 
   const classes = addClassString('', [isError && 'animate-shake'])
 
@@ -82,6 +83,8 @@ const SessionAuthModal: FC<SessionAuthModalProps> = ({
   const confirmPassword = (token: string) => {
     const pattern = /^api-token-0x\w*$/
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const decryptedToken = CryptoJS.AES.decrypt(token, password).toString(CryptoJS.enc.Utf8)
       if (!decryptedToken.length || !pattern.test(decryptedToken)) {
         handleError()

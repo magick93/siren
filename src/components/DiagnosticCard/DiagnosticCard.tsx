@@ -1,15 +1,15 @@
-import { FC } from 'react'
-import Typography, { TypographyType } from '../Typography/Typography'
-import network from '../../assets/images/network.svg'
-import { ReactComponent as NotAvailable } from '../../assets/images/notAvalilable.svg'
-import darkNetwork from '../../assets/images/darkNetwork.svg'
-import Status from '../Status/Status'
+import { FC, useEffect, useState } from 'react'
+import { PlacesType } from 'react-tooltip'
+import addClassString from '../../../utilities/addClassString'
+import generateId from '../../../utilities/generateId'
+import DarkNetwork from '../../assets/images/darkNetwork.svg'
+import Network from '../../assets/images/network.svg'
+import NotAvailable from '../../assets/images/notAvalilable.svg'
+import { OptionalString, StatusColor } from '../../types'
 import ProgressCircle from '../ProgressCircle/ProgressCircle'
-import generateId from '../../utilities/generateId'
+import Status from '../Status/Status'
 import Tooltip from '../ToolTip/Tooltip'
-import { ITooltip } from 'react-tooltip'
-import addClassString from '../../utilities/addClassString'
-import { StatusColor } from '../../types'
+import Typography, { TypographyType } from '../Typography/Typography'
 
 export type CardSize = 'lg' | 'md' | 'sm' | 'health'
 
@@ -22,12 +22,12 @@ export interface DiagnosticCardProps {
   subTitle: string
   border?: string
   subTitleHighlightColor?: string
-  maxHeight?: string
-  maxWidth?: string
+  maxHeight?: OptionalString
+  maxWidth?: OptionalString
   isBackground?: boolean
-  size?: CardSize
-  toolTipText?: string
-  toolTipPosition?: ITooltip['place']
+  size?: CardSize | undefined
+  toolTipText?: OptionalString
+  toolTipPosition?: PlacesType
   isDisabled?: boolean
 }
 
@@ -48,6 +48,7 @@ const DiagnosticCard: FC<DiagnosticCardProps> = ({
   toolTipPosition,
   isDisabled,
 }) => {
+  const [isReady, setReady] = useState(false)
   const toolTipId = Math.random().toString()
   const isSmall = size === 'sm'
   const getContainerSize = () => {
@@ -66,6 +67,11 @@ const DiagnosticCard: FC<DiagnosticCardProps> = ({
         } py-2 px-3 xl:py-3 xl:px-4 dark:border-dark500`
     }
   }
+
+  useEffect(() => {
+    setReady(true)
+  }, [])
+
   const contentClass = addClassString('flex flex-col justify-between h-full', [
     isDisabled && 'opacity-20',
   ])
@@ -77,8 +83,8 @@ const DiagnosticCard: FC<DiagnosticCardProps> = ({
         size !== 'sm' &&
         isBackground && (
           <div className='w-full max-h-full absolute left-0 top-1/2 transform -translate-y-1/2 overflow-hidden'>
-            <img className='w-full dark:hidden' src={network} alt='network' />
-            <img className='w-full hidden dark:block' src={darkNetwork} alt='network' />
+            <Network className='w-full dark:hidden' />
+            <DarkNetwork className='w-full hidden dark:block' />
           </div>
         )
       )}
@@ -118,12 +124,12 @@ const DiagnosticCard: FC<DiagnosticCardProps> = ({
 
   return (
     <div className={`w-full h-full ${getContainerSize()} ${border} relative`}>
-      {toolTipText ? (
+      {toolTipText && isReady ? (
         <Tooltip
           className='h-full'
           maxWidth={250}
           id={toolTipId}
-          place={toolTipPosition}
+          place={toolTipPosition as PlacesType}
           text={toolTipText}
         >
           {renderContent()}

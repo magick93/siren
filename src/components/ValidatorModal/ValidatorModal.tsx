@@ -1,14 +1,18 @@
-import { createContext, useEffect, useState } from 'react'
-import ValidatorDetails from './views/ValidatorDetails'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
-import Spinner from '../Spinner/Spinner'
-import { selectValidatorDetail } from '../../recoil/selectors/selectValidatorDetails'
-import { validatorIndex } from '../../recoil/atoms'
-import useMediaQuery from '../../hooks/useMediaQuery'
-import RodalModal from '../RodalModal/RodalModal'
-import { ValidatorModalView } from '../../constants/enums'
-import ValidatorExit from './views/ValidatorExit'
+import { useRouter } from 'next/navigation'
 import Carousel from 'nuka-carousel'
+import { createContext, FC, useEffect, useMemo, useState } from 'react'
+import { useSetRecoilState } from 'recoil';
+import formatValidatorEpochData from '../../../utilities/formatValidatorEpochData'
+import { ValidatorModalView } from '../../constants/enums'
+import useMediaQuery from '../../hooks/useMediaQuery'
+import useSWRPolling from '../../hooks/useSWRPolling';
+import { activeValidatorId, isValidatorDetail } from '../../recoil/atoms';
+import { ValidatorMetricResult } from '../../types/beacon';
+import { ValidatorBalanceInfo } from '../../types/validator'
+import RodalModal from '../RodalModal/RodalModal'
+import Spinner from '../Spinner/Spinner'
+import ValidatorDetails, { ValidatorDetailsProps } from './views/ValidatorDetails'
+import ValidatorExit from './views/ValidatorExit'
 
 export interface ValidatorModalContextProps {
   moveToView: (view: ValidatorModalView) => void
@@ -20,21 +24,40 @@ export const ValidatorModalContext = createContext<ValidatorModalContextProps>({
   closeModal: () => {},
 })
 
-const ValidatorModal = () => {
+export interface ValidatorModalProps extends Omit<ValidatorDetailsProps, 'validatorMetrics' | 'isAnimate'> {}
+
+const ValidatorModal: FC<ValidatorModalProps> = ({
+  validator,
+  validatorCacheData,
+}) => {
   const [isReady, setReady] = useState(false)
-  const setValidatorIndex = useSetRecoilState(validatorIndex)
-  const validator = useRecoilValue(selectValidatorDetail)
+  const router = useRouter()
+  const setActiveValidatorId = useSetRecoilState(activeValidatorId)
+  const setValDetail = useSetRecoilState(isValidatorDetail)
   const [activeIndex, setIndex] = useState(0)
+  const [isFinishAnim, setFinished] = useState(false)
   const [view, setView] = useState<ValidatorModalView>(ValidatorModalView.EXIT)
   const isTablet = useMediaQuery('(max-width: 768px)')
   const isLargeScreen = useMediaQuery('(min-width: 1540px)')
+  const { index, status } = validator
+
+  const { data: validatorMetric } = useSWRPolling<ValidatorMetricResult>(
+    status !== 'withdrawal_done' ? `/api/validator-metrics/${index}` : null,
+    { refreshInterval: 5 * 1000 },
+  )
+
+  const validatorEpochData = useMemo<ValidatorBalanceInfo>(() => {
+    return formatValidatorEpochData([validator], validatorCacheData)
+  }, [validator, validatorCacheData])
 
   useEffect(() => {
     setReady(true)
   }, [])
 
   const closeModal = () => {
-    setValidatorIndex(undefined)
+    router.push('/dashboard/validators')
+    setActiveValidatorId(undefined);
+    setValDetail(false)
     setTimeout(() => {
       setView(ValidatorModalView.DETAILS)
       setIndex(0)
@@ -45,7 +68,7 @@ const ValidatorModal = () => {
 
     switch (view) {
       case ValidatorModalView.EXIT:
-        return <ValidatorExit validator={validator} />
+        return <ValidatorExit isAnimate={isFinishAnim} validatorEpochData={validatorEpochData} validator={validator} />
       default:
         return <div />
     }
@@ -65,9 +88,11 @@ const ValidatorModal = () => {
       setIndex(1)
     }, 200)
   }
+  const finishAnim = () => setFinished(true)
 
   return (
     <RodalModal
+      onAnimationEnd={finishAnim as any}
       isVisible={!!validator && isReady}
       styles={{
         width: 'fit-content',
@@ -79,7 +104,12 @@ const ValidatorModal = () => {
       {validator ? (
         <ValidatorModalContext.Provider value={{ moveToView, closeModal }}>
           <Carousel swiping={false} slideIndex={activeIndex} dragging={false} withoutControls>
-            <ValidatorDetails />
+            <ValidatorDetails
+              isAnimate={isFinishAnim}
+              validator={validator}
+              validatorCacheData={validatorCacheData}
+              validatorMetrics={validatorMetric}
+            />
             {renderContent()}
           </Carousel>
         </ValidatorModalContext.Provider>

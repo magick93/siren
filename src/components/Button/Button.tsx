@@ -1,7 +1,8 @@
 import React, { FC, ReactNode } from 'react'
-import { TypographyFamily, TypographyType } from '../Typography/Typography'
+import addClassString from '../../../utilities/addClassString'
+import { OptionalBoolean } from '../../types'
 import Spinner from '../Spinner/Spinner'
-import addClassString from '../../utilities/addClassString'
+import { TypographyFamily, TypographyType } from '../Typography/Typography'
 
 export enum ButtonFace {
   PRIMARY = 'PRIMARY',
@@ -14,19 +15,19 @@ export enum ButtonFace {
 }
 
 export interface ButtonProps {
-  type?: ButtonFace
-  isDisabled?: boolean
+  type?: ButtonFace | undefined
+  isDisabled?: OptionalBoolean
   font?: TypographyFamily
   fontType?: TypographyType
   children: ReactNode | ReactNode[]
-  onClick?: () => void
+  onClick?: (() => void) | undefined
   dataTestId?: string
   padding?: string
   className?: string
   renderAs?: 'submit' | 'reset' | 'button'
   href?: string
-  target?: '_self' | '_blank'
-  isLoading?: boolean
+  target?: '_self' | '_blank' | undefined
+  isLoading?: OptionalBoolean
 }
 
 const Button: FC<ButtonProps> = ({

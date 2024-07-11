@@ -1,23 +1,22 @@
-import { ReactComponent as LightHouseLogo } from '../../assets/images/lightHouse.svg'
-import { ReactComponent as LightHouseFullLogo } from '../../assets/images/lightHouseFull.svg'
-
-import SideItem from './SideItem'
-import SideBarText from './SideBarText'
-import { PRIMARY_VIEWS, SECONDARY_VIEWS } from '../../constants/constants'
+import { usePathname } from 'next/navigation'
 import { createElement, useCallback } from 'react'
-import { useRecoilState } from 'recoil'
-import { dashView, isSideBarOpen } from '../../recoil/atoms'
-import { ContentView } from '../../constants/enums'
 import { useTranslation } from 'react-i18next'
-import useUiMode from '../../hooks/useUiMode'
-import UiModeIcon from '../UiModeIcon/UiModeIcon'
-import useMediaQuery from '../../hooks/useMediaQuery'
-import addClassString from '../../utilities/addClassString'
+import { useRecoilState } from 'recoil'
+import addClassString from '../../../utilities/addClassString'
+import LightHouseLogo from '../../assets/images/lightHouse.svg'
+import LightHouseFullLogo from '../../assets/images/lightHouseFull.svg'
+import { PRIMARY_VIEWS, SECONDARY_VIEWS } from '../../constants/constants'
 import useClickOutside from '../../hooks/useClickOutside'
+import useMediaQuery from '../../hooks/useMediaQuery'
+import useUiMode from '../../hooks/useUiMode'
+import { isSideBarOpen } from '../../recoil/atoms'
+import UiModeIcon from '../UiModeIcon/UiModeIcon'
+import SideBarText from './SideBarText'
+import SideItem from './SideItem'
 
 const SideBar = () => {
   const { t } = useTranslation()
-  const [view, setView] = useRecoilState(dashView)
+  const pathname = usePathname()
   const [showSideBar, toggleSideBar] = useRecoilState(isSideBarOpen)
   const { mode, toggleUiMode } = useUiMode()
   const isMobile = useMediaQuery('(max-width: 768px)')
@@ -34,14 +33,9 @@ const SideBar = () => {
     if (isMobile) {
       toggleSideBar(false)
     }
-  }, [isMobile])
+  }, [isMobile, toggleSideBar])
 
   const { ref } = useClickOutside<HTMLDivElement>(closeSideBar)
-
-  const changeView = (key: ContentView) => {
-    setView(key)
-    closeSideBar()
-  }
 
   const toggleUi = () => {
     toggleUiMode()
@@ -56,13 +50,8 @@ const SideBar = () => {
             <LightHouseLogo className='w-6 h-6 text-black dark:text-white' />
           </div>
           <ul className='space-y-4'>
-            {PRIMARY_VIEWS.map(({ logoComponent, key, isDisabled }) => (
-              <SideItem
-                key={key}
-                onClick={() => changeView(key)}
-                isDisabled={isDisabled}
-                isActive={view === key}
-              >
+            {PRIMARY_VIEWS.map(({ logoComponent, key, isDisabled, href }) => (
+              <SideItem key={key} href={href} isDisabled={isDisabled} isActive={pathname === href}>
                 {createElement(logoComponent)}
               </SideItem>
             ))}
@@ -70,18 +59,13 @@ const SideBar = () => {
         </div>
         <div className='w-full pb-4'>
           <ul className='space-y-4'>
-            {SECONDARY_VIEWS.map(({ logoComponent, key, isDisabled }) => (
-              <SideItem
-                key={key}
-                onClick={() => changeView(key)}
-                isDisabled={isDisabled}
-                isActive={view === key}
-              >
+            {SECONDARY_VIEWS.map(({ logoComponent, key, isDisabled, href }) => (
+              <SideItem key={key} href={href} isDisabled={isDisabled} isActive={pathname === href}>
                 {createElement(logoComponent)}
               </SideItem>
             ))}
             <div className='w-full h-6 flex items-center justify-center'>
-              <UiModeIcon onClick={toggleUiMode} mode={mode} />
+              <UiModeIcon onClick={toggleUi} mode={mode} />
             </div>
           </ul>
         </div>
@@ -92,31 +76,31 @@ const SideBar = () => {
             <LightHouseFullLogo className='w-34 text-black dark:text-white' />
           </div>
           <ul className='space-y-4 pl-4'>
-            {PRIMARY_VIEWS.map(({ title, key, isDisabled }) => (
+            {PRIMARY_VIEWS.map(({ title, key, isDisabled, href }) => (
               <SideBarText
                 key={key}
+                href={href}
                 isDisabled={isDisabled}
-                onClick={() => changeView(key)}
-                isActive={view === key}
+                isActive={pathname === href}
                 text={t(title)}
               />
             ))}
           </ul>
         </div>
-        <div className='w-full py-4'>
+        <div className='w-full pb-6'>
           <ul className='space-y-4 pl-4'>
-            {SECONDARY_VIEWS.map(({ title, key, isDisabled }) => (
+            {SECONDARY_VIEWS.map(({ title, key, isDisabled, href }) => (
               <SideBarText
                 isDisabled={isDisabled}
                 key={key}
-                onClick={() => changeView(key)}
-                isActive={view === key}
+                href={href}
+                isActive={pathname === href}
                 text={t(title)}
               />
             ))}
             <div onClick={toggleUi} className='w-full flex items-center'>
               <SideBarText className='w-auto md:mr-4' text={t('sidebar.theme')} />
-              <UiModeIcon className='md:hidden mr-4' mode={mode} />
+              <UiModeIcon className='md:hidden mr-4 ml-4 md:ml-0' mode={mode} />
             </div>
           </ul>
         </div>

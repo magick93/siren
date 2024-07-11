@@ -1,8 +1,8 @@
-import Typography from '../Typography/Typography'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRecoilValue } from 'recoil'
 import { selectBeaconChaBaseUrl } from '../../recoil/selectors/selectBeaconChaBaseUrl'
+import Typography from '../Typography/Typography'
 
 export interface BeaconChaLinkProps {
   index: number
@@ -19,7 +19,7 @@ const BeaconChaLink: FC<BeaconChaLinkProps> = ({ index }) => {
           Beacon <br /> Cha.in
         </Typography>
         <Typography color='text-dark400' fontWeight='font-light' type='text-caption2'>
-          {t('validatorManagement.details.exploreBeaconChai')}
+          {t('validatorManagement.details.exploreBeaconCha')}
         </Typography>
         <div className='w-full flex items-center space-x-8'>
           <Typography fontWeight='font-light' className='uppercase'>

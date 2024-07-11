@@ -1,5 +1,6 @@
 import { FC } from 'react'
-import addClassString from '../../utilities/addClassString'
+import addClassString from '../../../utilities/addClassString'
+import { OptionalBoolean } from '../../types'
 import LoadingDots from '../LoadingDots/LoadingDots'
 
 export interface ValidatorActionIconProps {
@@ -9,7 +10,7 @@ export interface ValidatorActionIconProps {
   color?: string
   size?: string
   onClick?: () => void
-  isLoading?: boolean
+  isLoading?: OptionalBoolean
   isDisabled?: boolean
 }
 
