@@ -1,11 +1,39 @@
 services:
+  nginx-proxy:
+    image: nginx:stable
+    networks:
+      - internet
+      - no_internet
+    volumes:
+      - ./docker-assets/nginx_proxy_google.conf.template:/etc/nginx/nginx.conf.template:ro
+    command: /bin/bash -c "envsubst '$$PROXY_TARGET' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    environment:
+      - PROXY_TARGET=65.108.39.206
+    restart: always
+
   siren:
     image: sigp/siren
+    networks:
+      - no_internet
+    tty: true
+    stdin_open: true
+    entrypoint: "/bin/bash"
     ports:
       - "4443:443" # comment this line when using `SSL_ENABLED=false`
-#      - "4080:80"  # uncomment this line when using `SSL_ENABLED=false`
+      - "4080:80"  # uncomment this line when using `SSL_ENABLED=false`
     env_file:
       - .env
-#    uncomment these 2 lines if you use docker on linux and want to use the special host `host.docker.internal` as your BN/VC address
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"
+    tmpfs:
+      - /tmp
+    environment:
+      - NODE_ENV=production
+      # Point to nginx-proxy for beacon/validator access
+      - BEACON_URL=http://nginx-proxy:9001
+      - VALIDATOR_URL=http://nginx-proxy:9002
+
+networks:
+  internet:
+    driver: bridge
+  no_internet:
+    driver: bridge
+    internal: true # Prevents direct internet access
