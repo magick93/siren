@@ -32,7 +32,7 @@ http {
         server_name localhost;
 
         location / {
-            set $upstream_siren ${SIREN_HOST};
+            set $upstream_siren siren;
             proxy_pass http://$upstream_siren:80;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
@@ -53,13 +53,13 @@ stream {
     # Beacon Node proxy
     server {
         listen     9001;
-        proxy_pass ${PROXY_TARGET}:9001;
+        proxy_pass ${BN_TARGET}:9001;
     }
   
     # Validator Client proxy
     server {
         listen     9002;
-        proxy_pass ${PROXY_TARGET}:9002;
+        proxy_pass ${VC_TARGET}:9002;
     }
 
     # Block all other outbound connections
