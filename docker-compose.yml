@@ -1,39 +1,47 @@
 services:
   nginx-proxy:
+    container_name: nginx-proxy
     image: nginx:stable
     networks:
       - internet
       - no_internet
+    ports:
+      - "4080:4080"  # For Siren web interface
+      - "9001:9001"  # For beacon node
+      - "9002:9002"  # For validator
     volumes:
       - ./docker-assets/nginx_proxy_google.conf.template:/etc/nginx/nginx.conf.template:ro
-    command: /bin/bash -c "envsubst '$$PROXY_TARGET' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    command: /bin/bash -c "envsubst '$$PROXY_TARGET $$SIREN_HOST' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     environment:
       - PROXY_TARGET=65.108.39.206
+      - SIREN_HOST=siren
     restart: always
 
   siren:
+    container_name: siren
     image: sigp/siren
     networks:
-      - no_internet
-    tty: true
-    stdin_open: true
-    entrypoint: "/bin/bash"
-    ports:
-      - "4443:443" # comment this line when using `SSL_ENABLED=false`
-      - "4080:80"  # uncomment this line when using `SSL_ENABLED=false`
+      - no_internet  # Only on internal network
+    expose:
+      - "80"
     env_file:
       - .env
     tmpfs:
       - /tmp
     environment:
       - NODE_ENV=production
-      # Point to nginx-proxy for beacon/validator access
       - BEACON_URL=http://nginx-proxy:9001
       - VALIDATOR_URL=http://nginx-proxy:9002
+      - SSL_ENABLED=false
+      - PORT=3000
+      - BACKEND_URL=http://127.0.0.1:3001
+    restart: always
 
 networks:
   internet:
+    name: internet
     driver: bridge
   no_internet:
+    name: no_internet
     driver: bridge
-    internal: true # Prevents direct internet access
+    internal: true  # Prevents direct internet access
