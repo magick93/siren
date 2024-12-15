@@ -2,6 +2,8 @@ services:
   nginx-proxy:
     container_name: nginx-proxy
     image: nginx:stable
+    # Run nginx as non-root user
+    # user: nginx
     networks:
       - internet
       - no_internet
@@ -15,19 +17,21 @@ services:
     environment:
       - PROXY_TARGET=65.108.39.206
       - SIREN_HOST=siren
-    restart: always
+
+    restart: unless-stopped     # Don't restart if manually stopped
 
   siren:
     container_name: siren
     image: sigp/siren
     networks:
-      - no_internet  # Only on internal network
+      - no_internet           # Only on internal network
     expose:
       - "80"
     env_file:
       - .env
     tmpfs:
-      - /tmp
+      - /tmp:noexec,nosuid    # Mount tmp with restricted permissions
+      - /run:noexec,nosuid    # Required for nginx pid file
     environment:
       - NODE_ENV=production
       - BEACON_URL=http://nginx-proxy:9001
@@ -35,7 +39,17 @@ services:
       - SSL_ENABLED=false
       - PORT=3000
       - BACKEND_URL=http://127.0.0.1:3001
-    restart: always
+    # Security enhancements
+    security_opt:
+      - no-new-privileges:true  # Prevent privilege escalation
+    
+    healthcheck:             # Add health monitoring
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped  # Don't restart if manually stopped
 
 networks:
   internet:
@@ -44,4 +58,7 @@ networks:
   no_internet:
     name: no_internet
     driver: bridge
-    internal: true  # Prevents direct internet access
+    internal: true          # Prevents direct internet access
+    # # Enable network encryption
+    driver_opts:
+      encrypted: "true"
