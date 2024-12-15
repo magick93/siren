@@ -2,8 +2,6 @@ services:
   nginx-proxy:
     container_name: nginx-proxy
     image: nginx:stable
-    # Run nginx as non-root user
-    # user: nginx
     networks:
       - internet
       - no_internet
