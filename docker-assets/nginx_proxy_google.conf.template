@@ -50,16 +50,26 @@ stream {
     access_log  /var/log/nginx/access.log  main;
     access_log  /dev/stdout  main;
 
+    # Split BN_TARGET into host and port using shell parameter expansion
+    upstream beacon_node {
+        server ${BN_TARGET};
+    }
+
+    # Split VC_TARGET into host and port using shell parameter expansion
+    upstream validator_client {
+        server ${VC_TARGET};
+    }
+
     # Beacon Node proxy
     server {
         listen     9001;
-        proxy_pass ${BN_TARGET}:9001;
+        proxy_pass beacon_node;
     }
   
     # Validator Client proxy
     server {
         listen     9002;
-        proxy_pass ${VC_TARGET}:9002;
+        proxy_pass validator_client;
     }
 
     # Block all other outbound connections
