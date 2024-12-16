@@ -28,7 +28,7 @@ Configuration is done through environment variables, the best way to get started
 
 Then to run the image:
 
-`docker compose up` and visit `http://localhost:4080/dashboard`
+`docker compose up` and visit `http://localhost:4080/`
 or  
 `docker run --rm -ti --name siren -p 3443:443 --env-file $PWD/.env sigp/siren`  
 
