@@ -63,12 +63,20 @@ stream {
     # Beacon Node proxy
     server {
         listen     9001;
+        # Resolve DNS for upstreams
+        resolver 127.0.0.11;
+        
+        # Proxy pass to the beacon node
         proxy_pass beacon_node;
     }
   
     # Validator Client proxy
     server {
         listen     9002;
+        # Resolve DNS for upstreams
+        resolver 127.0.0.11;
+        
+        # Proxy pass to the validator client
         proxy_pass validator_client;
     }
 
