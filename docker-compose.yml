@@ -7,14 +7,13 @@ services:
       - no_internet
     ports:
       - "4080:4080"  # For Siren web interface
-      - "9001:9001"  # For beacon node
-      - "9002:9002"  # For validator
+      - "4443:443"   # For Siren web interface with SSL
     volumes:
       - ./docker-assets/nginx_proxy.conf.template:/etc/nginx/nginx.conf.template:ro
-    command: /bin/bash -c "envsubst '$$BN_TARGET $$VC_TARGET $$SIREN_HOST' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
-    environment:
-      - BN_TARGET=your-BN-ip:9001
-      - VC_TARGET=your-VC-ip:9002
+    command: /bin/bash -c "export BN_TARGET=$(echo $BEACON_URL | awk -F'[/:]' '{print $4 \":\" $5}') && export VC_TARGET=$(echo $VALIDATOR_URL | awk -F'[/:]' '{print $4 \":\" $5}') && envsubst '$$BN_TARGET $$VC_TARGET $$SIREN_HOST' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    env_file:
+      - .env
+
 
     restart: unless-stopped     # Don't restart if manually stopped
 
