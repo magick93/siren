@@ -25,18 +25,10 @@ Docker is the recommended way to run Siren. This will expose Siren as a webapp.
 
 Configuration is done through environment variables, the best way to get started is by copying `.env.example` to `.env` and editing the relevant sections (typically, this would at least include `BEACON_URL`, `VALIDATOR_URL` and `API_TOKEN`).
 
-You will also need to set the Beacon and Validator ip and port in the docker compose file:
-
-```yml
-
-    environment:
-      - BN_TARGET=your-BN-ip:9001
-      - VC_TARGET=your-VC-ip:9002
-```
 
 Then to run the image:
 
-`docker compose up`
+`docker compose up` and visit `http://localhost:4080/dashboard`
 or  
 `docker run --rm -ti --name siren -p 3443:443 --env-file $PWD/.env sigp/siren`  
 
