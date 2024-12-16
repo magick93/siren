@@ -22,8 +22,6 @@ services:
     image: sigp/siren
     networks:
       - no_internet           # Only on internal network
-    expose:
-      - "80"
     env_file:
       - .env
     tmpfs:
