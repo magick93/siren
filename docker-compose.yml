@@ -10,7 +10,7 @@ services:
       - "9001:9001"  # For beacon node
       - "9002:9002"  # For validator
     volumes:
-      - ./docker-assets/nginx_proxy_google.conf.template:/etc/nginx/nginx.conf.template:ro
+      - ./docker-assets/nginx_proxy.conf.template:/etc/nginx/nginx.conf.template:ro
     command: /bin/bash -c "envsubst '$$BN_TARGET $$VC_TARGET $$SIREN_HOST' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     environment:
       - BN_TARGET=65.108.39.206:9001
