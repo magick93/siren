@@ -1,0 +1,29 @@
+version: "3.7"
+services:
+  caddy:
+    image: lucaslorentz/caddy-docker-proxy:ci-alpine
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - CADDY_INGRESS_NETWORKS=caddy
+    group_add:
+      - "997"  # Use the Docker group's GID
+    cap_add:
+      - NET_BIND_SERVICE
+      - NET_ADMIN
+      - CAP_NET_BIND_SERVICE
+    networks:
+      - caddy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - caddy_data:/data
+    restart: unless-stopped
+    read_only: true
+
+networks:
+  caddy:
+    external: true
+
+volumes:
+  caddy_data: {}
