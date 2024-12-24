@@ -23,48 +23,15 @@ developers. Specifically the [Lighthouse UI](https://lighthouse-book.sigmaprime.
 
 Docker is the recommended way to run Siren. This will expose Siren as a webapp.
 
-Configuration is done through environment variables, the best way to get started is by copying `.env.example` to `.env` and editing the relevant sections (typically, this would at least include `BEACON_URL`, `VALIDATOR_URL` and `API_TOKEN`).
+Configuration is done through environment variables, the best way to get started is by copying `.env.example` to `.env` and editing the relevant sections (typically, this would at least include `BEACON_URL`, `VALIDATOR_URL` and `API_TOKEN`)
 
-#### Starting Siren with Docker Compose
+Then to run the image:
 
-1. Copy the environment file:
-   ```bash
-   cp .env.example .env
-   ```
+`docker compose up`
+or  
+`docker run --rm -ti --name siren -p 3443:443 --env-file $PWD/.env sigp/siren`
 
-2. Edit `.env` with your configuration (at minimum set `BEACON_URL`, `VALIDATOR_URL`, and `API_TOKEN`)
-
-3. Start the services:
-   ```bash
-   docker compose up -d
-   ```
-   The `-d` flag runs the containers in the background. Remove it if you want to see the logs directly in your terminal.
-
-4. Access Siren at https://localhost:4443
-
-   Note: When you first visit the site, your browser will show a security warning because Siren uses a self-signed SSL certificate. This is expected and safe for local development. You can proceed by:
-   - In Chrome: Click "Advanced" and then "Proceed to localhost (unsafe)"
-   - In Firefox: Click "Advanced..." and then "Accept the Risk and Continue"
-   - In Safari: Click "Show Details" and then "visit this website"
-
-#### Stopping Siren
-
-To stop the services:
-```bash
-docker compose down
-```
-
-To stop and remove all data (including certificates):
-```bash
-docker compose down -v
-```
-
-#### Alternative Docker Run Method
-
-You can also run Siren using the docker run command:  
-`docker run --rm -ti --name siren -p 3443:443 --env-file $PWD/.env sigp/siren`  
-
-This will open port 3443 and allow your browser to connect. 
+This will open port 3443 and allow your browser to connect.
 
 To start Siren, visit `https://localhost:3443` in your web browser (ignore the certificate warning).
 
@@ -114,4 +81,3 @@ If you want to connect to siren with your browser wallet you must add some addit
 Lastly you need to add the `NEXT_PUBLIC_TESTNET_RPC` variable to allow siren to connect your wallet. This can be found in the services table in the `EL`. There may be multiple but you can select `el-1-geth-lghthouse`. In the ports table you need to copy the `public ports` for the `rpc` row. It should resemble `http://127.0.0.1:YOUR-KUBERNET-RPC`
 
 When everything is added correctly you need to import the `kurtosis` wallet into your browser wallet provider and add the same `NEXT_PUBLIC_TESTNET_RPC` as the `RPC_URL` so you can see the balance and make movements correctly.
-
